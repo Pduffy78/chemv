@@ -7,6 +7,11 @@
         <field name="inherit_id" ref="account.view_partner_property_form"/>
         <field name="arch" type="xml">
             <xpath expr="//group[@name='accounting_entries']" position="after">
+                <group>
+                    <field name="account_credit_limit"/>
+                    <field name="account_default_credit_limit" attrs="{'invisible': [('account_credit_limit', '=', False)]}"/>
+                    <field name="credit_limit_type" attrs="{'required': [('account_credit_limit', '=', True)],'invisible': [('account_credit_limit', '=', False)]}"/>
+                 </group>
                 <group string="Credit Limits"
                        name="credit_limits"
                        groups="account.group_account_invoice,account.group_account_readonly"
@@ -23,7 +28,10 @@
                         <field name="credit_limit_compute"/>
                         &amp;nbsp;<i class="fa fa-info-circle" role="img" title="This is the default (company) credit limit."></i>
                     </div>
+
                 </group>
+                 
+                   
             </xpath>
         </field>
     </record>

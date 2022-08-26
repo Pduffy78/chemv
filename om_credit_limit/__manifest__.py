@@ -2,7 +2,7 @@
     'name': 'Customer Credit Limit With Warning and Blocking',
     'author': 'Odoo Mates',
     'category': 'Accounting',
-    'version': '4.2.0',
+    'version': '4.2.1',
     'description': """Customer Credit Limit, Credit Limit With Warning and Blocking, Customer Credit Limit With Warning and Blocking""",
     'summary': """Customer Credit Limit, Credit Limit With Warning and Blocking, Customer Credit Limit With Warning and Blocking""",
     'sequence': 11,
@@ -14,7 +14,7 @@
         'views/res_partner.xml',
         'views/account_move.xml',
         'views/sale_order.xml',
-        'views/res_config_settings.xml',
+        # 'views/res_config_settings.xml',
     ],
     'images': ['static/description/banner.png'],
 
