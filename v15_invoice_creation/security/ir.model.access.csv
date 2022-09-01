@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_move,account.move,account.model_account_move,sale_invoice_creation,1,1,1,1
+access_account_move_line,account.move.line,account.model_account_move_line,sale_invoice_creation,1,1,1,1
+access_account_edi_document,account.edi.document,account_edi.model_account_edi_document,sale_invoice_creation,1,1,1,1
