@@ -10,16 +10,16 @@ from io import BytesIO
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 import io
 import csv
-
+import re
+import string
     
 
 class wizard_import_ap(models.TransientModel):
     _name = 'wizard.import.ap'
     
     upload_csv = fields.Binary(string="Upload csv file")
+    ap_company_id = fields.Many2one("res.company", string = "Company")
     
-        
-        
     
     
     def duplicate_journals(self):
@@ -38,7 +38,6 @@ class wizard_import_ap(models.TransientModel):
     
     
     def wizard_import(self):
-        print(1111111111111111111111111111)
         csv_data = base64.b64decode(self.upload_csv)
         data_file = io.StringIO(csv_data.decode("utf-8"))
         data_file.seek(0)
@@ -49,64 +48,81 @@ class wizard_import_ap(models.TransientModel):
         account_obj = self.env['account.account']
         invoice_obj = self.env['account.move']
         company_obj = self.env['res.company']
+        currency_obj = self.env['res.currency']
         for i in range(len(file_reader)):
             field = list(map(str, file_reader[i]))
             if i >= 1:
-                date = datetime.strptime(field[7], '%m/%d/%y')
-                partner = partner_obj.sudo().search([('name', '=', field[5])], limit = 1)
-                company = company_obj.search([('name', '=', field[4])], limit = 1)
-                account = account_obj.sudo().search([('company_id', '=', company.id), ('code', '=', '500010')], limit = 1)
-                price_unit = field[10]
-                price_unit = price_unit.replace(',', '')
-                price_unit = float(price_unit)
-                tax_ids = field[11]
-                if not field[11] or field[11] in ['0', 0]:
-                    tax_ids = self.env['account.tax'].sudo().search([('name', '=', 'Zero Rate'), ('company_id', '=', company.id)], limit = 1)
-                else:
-                    tax_ids = self.env['account.tax'].sudo().search([('name', '=', 'Standard Rate'), ('company_id', '=', company.id)], limit = 1)
-                journal = self.env['account.journal'].sudo().search([('name', '=', 'Cus Inv Opening Balance'), ('company_id', '=', company.id)], limit = 1)
-                inv_line_vals = {
-                        'account_id': journal.default_account_id.id,
-                        'name': 'opening balance' ,
-                        'price_unit': price_unit,
-                        'quantity': 1,
-                        'company_id' : company.id,
-                        # 'product_id': False,
-                        'tax_ids' : [(6,0, tax_ids.ids)],
-                        'currency_id': company.currency_id.id,
-                    
-                    }
-                print(inv_line_vals)
-                inv = self.env["account.move"].create({
-                    # "name": inv_line.inv_number,
-                    "move_type": 'out_invoice',
-                    "invoice_date_due": date,
-                    "invoice_date": date,
-                    "date": date,                
-                    'ref': field[3],
-                    'journal_id': journal.id,
-                    'partner_id': partner.id,
-                    'invoice_line_ids': [(0,0,inv_line_vals)],
-                    'company_id' : company.id,
-                    # 'tax_line_ids': False,
-                    # 'currency_id': currency.id,
-                    'currency_id': company.currency_id.id,
-                    # 'account_id': journal_invoice.default_debit_account_id.id,
-                })
+                print(i)
+                company = self.ap_company_id or company_obj.search([('name', '=', field[4])], limit = 1)
+                date = datetime.strptime(field[6], '%d/%m/%Y')
+                partner = partner_obj.sudo().with_company(company).search([('name', '=', field[5]), '|', ('company_id','=',company.id), ('company_id', '=', False)], limit = 1)
+                account = account_obj.sudo().with_company(company).search([('company_id', '=', company.id), ('code', '=', '500010')], limit = 1)
+                currency = currency_obj.sudo().with_company(company).search([('symbol','=',field[7])],limit=1)
+                price_unit = field[12]
                 
-                inv.action_post()
-#                 domain = []
-#                 if field[0]:
-#                     domain += [('name', '=', field[0])]
-#                 elif field[1]:
-#                     domain += [('email', '=', field[1])]
-#                 domain_parent = []
-#                 if field[3]:
-#                     domain_parent += [('name', '=', field[3])]
-#                 elif field[4]:
-#                     domain_parent += [('email', '=', field[4])]
-#                 current_partner = partner_obj.search(domain,limit = 1)
-#                 current_parent = partner_obj.search(domain_parent,limit = 1)
-#                 if current_partner and current_parent:
-#                     if current_partner != current_parent:
-#                         current_partner.parent_id = current_parent
+                price_unit = price_unit.replace(',', '')
+                price_unit = price_unit.replace(" ",'')
+                if price_unit == '-':
+                    price_unit = price_unit.replace('-','0.0')
+                price_unit = float(price_unit)
+                tax_ids = field[14]
+                tax_ids = field[14].replace('%','')
+                if not field[14] or field[14] in ['0', 0]:
+                    tax_ids = self.env['account.tax'].sudo().with_company(company).search([('name', '=', 'Zero Rate'), '|', ('company_id', '=', company.id), ('company_id', '=', False)], limit = 1)
+                else:
+                    tax_ids = self.env['account.tax'].sudo().with_company(company).search([('name', '=', 'Standard Rate'), '|', ('company_id', '=', company.id), ('company_id', '=', False)], limit = 1)
+                journal = self.env['account.journal'].sudo().with_company(company).search([('company_id', '=', company.id),('name', '=', 'Customer Invoices')], limit = 1)
+                if partner and company and price_unit > 0:
+                    inv_line_vals = {
+                            'account_id': journal.default_account_id.id,
+                            'name': 'opening balance' ,
+                            'price_unit': price_unit,
+                            'quantity': 1,
+                            'company_id' : company.id,
+                            'tax_ids' : [(6,0, tax_ids.ids)],
+                            'currency_id': company.currency_id.id,
+                        
+                        }
+                    
+                   
+                    
+                    inv = self.env["account.move"].with_company(company).create({
+                        'doc_id':field[0],
+                        'doc_type':field[1],
+                        'doc_no':field[2],
+                        "move_type": 'out_invoice',
+                        "invoice_date_due": date,
+                        "invoice_date": date,
+                        "date": date,                
+                        'ref': field[3],
+                        'journal_id': journal.id,
+                        'partner_id': partner.id,
+                        'invoice_line_ids': [(0,0,inv_line_vals)],
+                        'company_id' : company.id,
+                        'currency_id': company.currency_id.id,
+                    })
+                    inv.with_company(company).action_post()
+                else:
+                    if not partner:
+                        self.env['account.import.issue'].create({'issue':'customer not found', 'ap_company_id': company.id,'row_data':field})
+                        print('customer not found...................',field[5])
+                    else:
+                        self.env['account.import.issue'].create({'issue':'PRICE less than zero', 'ap_company_id': company.id,'row_data':field})
+                        print('price not found...................',field[5])
+
+
+class AccountMove(models.Model):
+
+    _inherit = 'account.move'
+
+    doc_id = fields.Integer(string="Doc Id")
+    doc_type = fields.Char(string="Doc Type")
+    doc_no = fields.Integer(string="Doc No.")
+
+class IssueDebtorImport(models.Model):
+
+    _name = 'account.import.issue'
+
+    issue = fields.Char(string = "Issue")
+    ap_company_id = fields.Many2one("res.company", string = "Company")
+    row_data = fields.Text(String = "Row Data")

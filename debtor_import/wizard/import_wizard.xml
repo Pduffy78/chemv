@@ -11,6 +11,7 @@
                 <group>
                     <group>
                         <field name="upload_csv" />
+                        <field name="ap_company_id" required = "1"/>
                     </group>
                 </group>
                 <footer>
@@ -18,8 +19,8 @@
                         class="btn-primary" />
 					<!-- <button name="duplicate_journals" string="Duplicate Journals " type="object"
                         class="btn-primary" /> -->
-					<button name="duplicate_accounts" string="Duplicate Accounts" type="object"
-                        class="btn-primary" />
+					<!-- <button name="duplicate_accounts" string="Duplicate Accounts" type="object"
+                        class="btn-primary" /> -->
 					
                     <button string="Cancel" class="btn-default" special="cancel" />
                 </footer>
@@ -37,8 +38,8 @@
     </record>
         
             
-        <menuitem id="importwiz" name="Import "
-            parent="sale.sale_menu_root" action="import_action"></menuitem>
+        <!-- <menuitem id="importwiz" name="Import "
+            parent="sale.sale_menu_root" action="import_action"></menuitem> -->
 
     </data>
 </odoo>

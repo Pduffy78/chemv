@@ -1,6 +1,6 @@
 {'name': "Debtor Import", 
         'summary': "",
-       'version': "1.0",
+       'version': "1.4",
        'depends': ['base','sale'],
        'author': "AP Accounting Services",
        'license': '',
@@ -11,6 +11,8 @@
     """,
        'data': [
                 'wizard/import_wizard.xml',
+                'wizard/account_view.xml',
+                'wizard/debtor_issue.xml',
                 'security/ir.model.access.csv',
         ],
        'qweb': [ 
