@@ -8,6 +8,7 @@
           	<field name="issue"/>
           	<field name="ap_company_id"/>
           	<field name="row_data"/>
+          	<!-- <field name="customer"/> -->
           </tree>
         </field>
       </record>
@@ -20,6 +21,17 @@
       <field name="view_id" ref="debtor_import_issue_tree"/>
   
   </record>
+
+   <record model="ir.actions.server" id="action_update_invoice">
+      <field name="name">Update Invoice</field>
+      <field name="model_id" ref="debtor_import.model_account_import_issue"/>
+      <field name="binding_model_id" ref="debtor_import.model_account_import_issue"/>
+      <field name="binding_view_types">list</field>
+      <field name="state">code</field>
+      <field name="code">
+          action = records.action_update_invoice()
+      </field>
+   </record>
 
    <menuitem id="importwiz" name="Import "
             parent="account_accountant.menu_accounting" ></menuitem>

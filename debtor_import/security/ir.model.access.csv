@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_wizard_import_ap,user.wizard.import.ap,model_wizard_import_ap,,1,1,1,0
 access_account_import_issue,account.import.issue,model_account_import_issue,base.group_user,1,1,1,1
+access_issue_partner,issue.partner,model_issue_partner,base.group_user,1,1,1,1
