@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="wizard_import" model="ir.ui.view">
+        <field name="name">wizard.import</field>
+        <field name="model">wizard.import.ap</field>
+        <field name="type">form</field>
+        <field name="priority">0</field>
+        <field name="arch" type="xml">
+            <form string="Import ">
+                <group>
+                    <group>
+                        <field name="upload_csv" />
+                        <field name="ap_company_id" required = "1"/>
+                    </group>
+                </group>
+                <footer>
+					<button name="wizard_import" string="Import " type="object"
+                        class="btn-primary" />
+					<!-- <button name="duplicate_journals" string="Duplicate Journals " type="object"
+                        class="btn-primary" /> -->
+					<!-- <button name="duplicate_accounts" string="Duplicate Accounts" type="object"
+                        class="btn-primary" /> -->
+					
+                    <button string="Cancel" class="btn-default" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <record model="ir.actions.act_window" id="import_action">
+        <field name="name">Import </field>
+        <field name="res_model">wizard.import.ap</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="wizard_import" />
+        <field name="target">new</field>
+
+    </record>
+        
+            
+        <!-- <menuitem id="importwiz" name="Import "
+            parent="sale.sale_menu_root" action="import_action"></menuitem> -->
+
+    </data>
+</odoo>

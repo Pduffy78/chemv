@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record model="ir.ui.view" id="debtor_import_issue_tree">
+        <field name="name">debtor.issue.import</field>
+        <field name="model">account.import.issue</field>
+        <field name="arch" type="xml">
+          <tree string="Debtor Issue">
+          	<field name="issue"/>
+          	<field name="ap_company_id"/>
+          	<field name="row_data"/>
+          	<!-- <field name="customer"/> -->
+          </tree>
+        </field>
+      </record>
+
+    <record model="ir.actions.act_window" id="debtor_import_issue_action">
+      <field name="name">Debtor Import Issue</field>
+      <field name="res_model">account.import.issue</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="view_mode">tree</field>
+      <field name="view_id" ref="debtor_import_issue_tree"/>
+  
+  </record>
+
+   <record model="ir.actions.server" id="action_update_invoice">
+      <field name="name">Update Invoice</field>
+      <field name="model_id" ref="debtor_import.model_account_import_issue"/>
+      <field name="binding_model_id" ref="debtor_import.model_account_import_issue"/>
+      <field name="binding_view_types">list</field>
+      <field name="state">code</field>
+      <field name="code">
+          action = records.action_update_invoice()
+      </field>
+   </record>
+
+   <menuitem id="importwiz" name="Import "
+            parent="account_accountant.menu_accounting" ></menuitem>
+   <menuitem id="importwiz_debtor_import" name="Debtor Import"
+            parent="importwiz" action="import_action"></menuitem>
+   <menuitem id="importwiz_debtor_issue" name="Debtor Issue"
+            parent="importwiz" action="debtor_import_issue_action"></menuitem>
+
+</odoo>

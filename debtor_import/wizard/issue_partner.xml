@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record model="ir.ui.view" id="partner_import_issue_tree">
+        <field name="name">partner.issue.import</field>
+        <field name="model">issue.partner</field>
+        <field name="arch" type="xml">
+          <tree string="Partner Issue" editable="bottom">
+          	<field name="issue_customer"/>
+          	<field name="odoo_customer"/>
+          	
+          </tree>
+        </field>
+      </record>
+
+    <record model="ir.actions.act_window" id="partner_import_issue_action">
+      <field name="name">Partner Import Issue</field>
+      <field name="res_model">issue.partner</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="view_mode">tree</field>
+      <field name="view_id" ref="partner_import_issue_tree"/>
+  
+  </record>
+
+
+
+  <menuitem id="importwiz_partner_issue" name="Partner Issue"
+            parent="importwiz" action="partner_import_issue_action"></menuitem>
+  
+
+  
+
+</odoo>
