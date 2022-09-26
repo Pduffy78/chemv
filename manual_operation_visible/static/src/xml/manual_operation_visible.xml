@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t t-extend="reconciliation.line">
+        <t t-jquery=".o_notebook ul li .nav-create" t-operation="replace">
+            <li class="nav-item" title="Create a counterpart" data-toggle="tooltip"><a data-toggle="tab" disable_anchor="true" t-attf-href="#notebook_page_create_#{state.st_line.id}" class="nav-link nav-create" role="tab" aria-selected="false">Manual Operations</a></li>
+        </t>
+
+        
+    </t>
+
+    
+
+</templates>
