@@ -28,7 +28,10 @@ class Picking(models.Model):
                 "location_id": self.location_dest_id.id,
                 "location_dest_id": self.location_transit_id.id,
                 "is_transit": True,
-                "origin": self.name
+                "origin": self.name,
+                "move_line_ids_without_package": False,
+                "move_line_ids": False,
+                "move_line_nosuggest_ids": False 
             })
 
     def button_view_created_transfer(self):
