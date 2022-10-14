@@ -3,7 +3,7 @@
 
 from collections import defaultdict
 
-from odoo import api, models
+from odoo import api, fields, models, _
 
 
 class ActivityStatement(models.AbstractModel):
@@ -17,7 +17,7 @@ class ActivityStatement(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT l.partner_id, l.currency_id, l.company_id,
+            SELECT l.partner_parent_id, l.currency_id, l.company_id,
             sum(CASE WHEN l.currency_id is not null AND l.amount_currency > 0.0
                 THEN l.amount_currency
                 ELSE l.debit
@@ -30,11 +30,11 @@ class ActivityStatement(models.AbstractModel):
             JOIN account_account aa ON (aa.id = l.account_id)
             JOIN account_account_type at ON (at.id = aa.user_type_id)
             JOIN account_move m ON (l.move_id = m.id)
-            WHERE l.partner_id IN %(partners)s
+            WHERE l.partner_parent_id IN %(partners)s
                 AND at.type = %(account_type)s
                 AND l.date < %(date_start)s AND not l.blocked
                 AND m.state IN ('posted')
-            GROUP BY l.partner_id, l.currency_id, l.company_id
+            GROUP BY l.partner_parent_id, l.currency_id, l.company_id
         """,
                 locals(),
             ),
@@ -45,7 +45,7 @@ class ActivityStatement(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT Q1.partner_id, debit-credit AS balance,
+            SELECT Q1.partner_parent_id, debit-credit AS balance,
             COALESCE(Q1.currency_id, c.currency_id) AS currency_id
             FROM Q1
             JOIN res_company c ON (c.id = Q1.company_id)
@@ -64,7 +64,7 @@ class ActivityStatement(models.AbstractModel):
         # pylint: disable=E8103
         self.env.cr.execute(
             """WITH Q1 AS (%s), Q2 AS (%s)
-        SELECT partner_id, currency_id, balance
+        SELECT partner_parent_id, currency_id, balance
         FROM Q2"""
             % (
                 self._initial_balance_sql_q1(partners, date_start, account_type),
@@ -72,14 +72,14 @@ class ActivityStatement(models.AbstractModel):
             )
         )
         for row in self.env.cr.dictfetchall():
-            balance_start[row.pop("partner_id")].append(row)
+            balance_start[row.pop("partner_parent_id")].append(row)
         return balance_start
 
     def _display_lines_sql_q1(self, partners, date_start, date_end, account_type):
         return str(
             self._cr.mogrify(
                 """
-            SELECT m.name AS move_id, l.partner_id, l.date,
+            SELECT m.name AS move_id, l.partner_parent_id, l.date,
                 CASE WHEN (aj.type IN ('sale', 'purchase'))
                     THEN l.name
                     ELSE '/'
@@ -111,12 +111,12 @@ class ActivityStatement(models.AbstractModel):
             JOIN account_account_type at ON (at.id = aa.user_type_id)
             JOIN account_move m ON (l.move_id = m.id)
             JOIN account_journal aj ON (l.journal_id = aj.id)
-            WHERE l.partner_id IN %(partners)s
+            WHERE l.partner_parent_id IN %(partners)s
                 AND at.type = %(account_type)s
                 AND %(date_start)s <= l.date
                 AND l.date <= %(date_end)s
                 AND m.state IN ('posted')
-            GROUP BY l.partner_id, m.name, l.date, l.date_maturity,
+            GROUP BY l.partner_parent_id, m.name, l.date, l.date_maturity,
                 CASE WHEN (aj.type IN ('sale', 'purchase'))
                     THEN l.name
                     ELSE '/'
@@ -141,7 +141,7 @@ class ActivityStatement(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT Q1.partner_id, Q1.move_id, Q1.date, Q1.date_maturity,
+            SELECT Q1.partner_parent_id, Q1.move_id, Q1.date, Q1.date_maturity,
                 Q1.name, Q1.ref, Q1.debit, Q1.credit,
                 Q1.debit-Q1.credit as amount, Q1.blocked,
                 COALESCE(Q1.currency_id, c.currency_id) AS currency_id
@@ -165,7 +165,7 @@ class ActivityStatement(models.AbstractModel):
             """
         WITH Q1 AS (%s),
              Q2 AS (%s)
-        SELECT partner_id, move_id, date, date_maturity, name, ref, debit,
+        SELECT partner_parent_id, move_id, date, date_maturity, name, ref, debit,
                             credit, amount, blocked, currency_id
         FROM Q2
         ORDER BY date, date_maturity, move_id"""
@@ -177,7 +177,7 @@ class ActivityStatement(models.AbstractModel):
             )
         )
         for row in self.env.cr.dictfetchall():
-            res[row.pop("partner_id")].append(row)
+            res[row.pop("partner_parent_id")].append(row)
         return res
 
     @api.model
@@ -191,3 +191,51 @@ class ActivityStatement(models.AbstractModel):
             data.update(wiz.create({})._prepare_statement())
         data["amount_field"] = "amount"
         return super()._get_report_values(docids, data)
+
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+    
+    partner_parent_id = fields.Many2one("res.partner", string="Partner Parent",store=True,compute="_compute_partner_parent")
+    
+    
+    @api.depends('partner_id')
+    def _compute_partner_parent(self):
+         for data in self:
+            print('MOVE:::::::::::::::::::::::::::',data)
+            partner = data.partner_id
+            if partner.parent_id and partner.parent_id.parent_id and partner.parent_id.parent_id.parent_id and partner.parent_id.parent_id.parent_id.parent_id:
+               data.partner_parent_id = partner.parent_id.parent_id.parent_id.parent_id
+            elif partner.parent_id and partner.parent_id.parent_id and partner.parent_id.parent_id.parent_id:
+               data.partner_parent_id = partner.parent_id.parent_id.parent_id
+            elif partner.parent_id and partner.parent_id.parent_id :
+               data.partner_parent_id = partner.parent_id.parent_id
+            elif partner.parent_id :
+               data.partner_parent_id = partner.parent_id
+            elif not partner.parent_id :
+               data.partner_parent_id = partner
+                
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+    
+    
+    partner_parent_id = fields.Many2one("res.partner", string="Partner Parent",store=True,compute="_compute_partner_parent")
+
+
+    @api.depends('partner_id')
+    def _compute_partner_parent(self):
+         for data in self:
+            print('MOVE LINE::::::::::::::::::::::::::::',data)
+            partner = data.partner_id
+            if partner.parent_id and partner.parent_id.parent_id and partner.parent_id.parent_id.parent_id and partner.parent_id.parent_id.parent_id.parent_id:
+               data.partner_parent_id = partner.parent_id.parent_id.parent_id.parent_id
+            elif partner.parent_id and partner.parent_id.parent_id and partner.parent_id.parent_id.parent_id:
+               data.partner_parent_id = partner.parent_id.parent_id.parent_id
+            elif partner.parent_id and partner.parent_id.parent_id :
+               data.partner_parent_id = partner.parent_id.parent_id
+            elif partner.parent_id :
+               data.partner_parent_id = partner.parent_id
+            elif not partner.parent_id :
+               data.partner_parent_id = partner

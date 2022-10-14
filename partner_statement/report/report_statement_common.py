@@ -38,7 +38,7 @@ class ReportStatementCommon(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT l.partner_id, l.currency_id, l.company_id, l.move_id,
+            SELECT l.partner_parent_id, l.currency_id, l.company_id, l.move_id,
             CASE WHEN l.balance > 0.0
                 THEN l.balance - sum(coalesce(pd.amount, 0.0))
                 ELSE l.balance + sum(coalesce(pc.amount, 0.0))
@@ -67,7 +67,7 @@ class ReportStatementCommon(models.AbstractModel):
                 ON pr.debit_move_id = l2.id
                 WHERE l2.date <= %(date_end)s
             ) as pc ON pc.credit_move_id = l.id
-            WHERE l.partner_id IN %(partners)s AND at.type = %(account_type)s
+            WHERE l.partner_parent_id IN %(partners)s AND at.type = %(account_type)s
                                 AND (
                                   (pd.id IS NOT NULL AND
                                       pd.max_date <= %(date_end)s) OR
@@ -76,7 +76,7 @@ class ReportStatementCommon(models.AbstractModel):
                                   (pd.id IS NULL AND pc.id IS NULL)
                                 ) AND l.date <= %(date_end)s AND not l.blocked
                                   AND m.state IN ('posted')
-            GROUP BY l.partner_id, l.currency_id, l.date, l.date_maturity,
+            GROUP BY l.partner_parent_id, l.currency_id, l.date, l.date_maturity,
                                 l.amount_currency, l.balance, l.move_id,
                                 l.company_id, l.id
         """,
@@ -89,7 +89,7 @@ class ReportStatementCommon(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT partner_id, currency_id, date_maturity, open_due,
+            SELECT partner_parent_id, currency_id, date_maturity, open_due,
                 open_due_currency, move_id, company_id,
             CASE
                 WHEN %(date_end)s <= date_maturity AND currency_id is null
@@ -152,7 +152,7 @@ class ReportStatementCommon(models.AbstractModel):
                 ELSE 0.0
             END as b_over_120
             FROM Q1
-            GROUP BY partner_id, currency_id, date_maturity, open_due,
+            GROUP BY partner_parent_id, currency_id, date_maturity, open_due,
                 open_due_currency, move_id, company_id
         """,
                 locals(),
@@ -164,7 +164,7 @@ class ReportStatementCommon(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT Q2.partner_id, current, b_1_30, b_30_60, b_60_90, b_90_120,
+            SELECT Q2.partner_parent_id, current, b_1_30, b_30_60, b_60_90, b_90_120,
                                 b_over_120,
             COALESCE(Q2.currency_id, c.currency_id) AS currency_id
             FROM Q2
@@ -178,12 +178,12 @@ class ReportStatementCommon(models.AbstractModel):
 
     def _show_buckets_sql_q4(self):
         return """
-            SELECT partner_id, currency_id, sum(current) as current,
+            SELECT partner_parent_id, currency_id, sum(current) as current,
                 sum(b_1_30) as b_1_30, sum(b_30_60) as b_30_60,
                 sum(b_60_90) as b_60_90, sum(b_90_120) as b_90_120,
                 sum(b_over_120) as b_over_120
             FROM Q3
-            GROUP BY partner_id, currency_id
+            GROUP BY partner_parent_id, currency_id
         """
 
     def _get_bucket_dates(self, date_end, aging_type):
@@ -222,12 +222,12 @@ class ReportStatementCommon(models.AbstractModel):
                 Q2 AS (%s),
                 Q3 AS (%s),
                 Q4 AS (%s)
-            SELECT partner_id, currency_id, current, b_1_30, b_30_60, b_60_90,
+            SELECT partner_parent_id, currency_id, current, b_1_30, b_30_60, b_60_90,
                 b_90_120, b_over_120,
                 current+b_1_30+b_30_60+b_60_90+b_90_120+b_over_120
                 AS balance
             FROM Q4
-            GROUP BY partner_id, currency_id, current, b_1_30, b_30_60,
+            GROUP BY partner_parent_id, currency_id, current, b_1_30, b_30_60,
                 b_60_90, b_90_120, b_over_120"""
             % (
                 self._show_buckets_sql_q1(partners, date_end, account_type),
@@ -243,7 +243,7 @@ class ReportStatementCommon(models.AbstractModel):
             )
         )
         for row in self.env.cr.dictfetchall():
-            buckets[row.pop("partner_id")].append(row)
+            buckets[row.pop("partner_parent_id")].append(row)
         return buckets
 
     def _get_bucket_labels(self, date_end, aging_type):
@@ -294,7 +294,7 @@ class ReportStatementCommon(models.AbstractModel):
         @return: returns a dict of parameters to pass to qweb report.
           the most important pair is {'data': res} which contains all
           the data for each partner.  It is structured like:
-            {partner_id: {
+            {partner_parent_id: {
                 'start': date string,
                 'end': date_string,
                 'today': date_string
