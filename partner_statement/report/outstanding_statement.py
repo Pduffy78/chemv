@@ -16,7 +16,7 @@ class OutstandingStatement(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT l.id, m.name AS move_id, l.partner_id, l.date, l.name,
+            SELECT l.id, m.name AS move_id, l.partner_parent_id, l.date, l.name,
                             l.blocked, l.currency_id, l.company_id,
             CASE WHEN l.ref IS NOT NULL
                 THEN l.ref
@@ -58,7 +58,7 @@ class OutstandingStatement(models.AbstractModel):
                 ON pr.debit_move_id = l2.id
                 WHERE l2.date <= %(date_end)s
             ) as pc ON pc.credit_move_id = l.id
-            WHERE l.partner_id IN %(partners)s AND at.type = %(account_type)s
+            WHERE l.partner_parent_id IN %(partners)s AND at.type = %(account_type)s
                                 AND (
                                   (pd.id IS NOT NULL AND
                                       pd.max_date <= %(date_end)s) OR
@@ -66,7 +66,7 @@ class OutstandingStatement(models.AbstractModel):
                                       pc.max_date <= %(date_end)s) OR
                                   (pd.id IS NULL AND pc.id IS NULL)
                                 ) AND l.date <= %(date_end)s AND m.state IN ('posted')
-            GROUP BY l.id, l.partner_id, m.name, l.date, l.date_maturity, l.name,
+            GROUP BY l.id, l.partner_parent_id, m.name, l.date, l.date_maturity, l.name,
                 CASE WHEN l.ref IS NOT NULL
                     THEN l.ref
                     ELSE m.ref
@@ -82,7 +82,7 @@ class OutstandingStatement(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-                SELECT Q1.partner_id, Q1.currency_id, Q1.move_id,
+                SELECT Q1.partner_parent_id, Q1.currency_id, Q1.move_id,
                     Q1.date, Q1.date_maturity, Q1.debit, Q1.credit,
                     Q1.name, Q1.ref, Q1.blocked, Q1.company_id,
                 CASE WHEN Q1.currency_id is not null
@@ -100,7 +100,7 @@ class OutstandingStatement(models.AbstractModel):
         return str(
             self._cr.mogrify(
                 """
-            SELECT Q2.partner_id, Q2.move_id, Q2.date, Q2.date_maturity,
+            SELECT Q2.partner_parent_id, Q2.move_id, Q2.date, Q2.date_maturity,
               Q2.name, Q2.ref, Q2.debit, Q2.credit,
               Q2.debit-Q2.credit AS amount, blocked,
               COALESCE(Q2.currency_id, c.currency_id) AS currency_id,
@@ -125,7 +125,7 @@ class OutstandingStatement(models.AbstractModel):
         WITH Q1 as (%s),
              Q2 AS (%s),
              Q3 AS (%s)
-        SELECT partner_id, currency_id, move_id, date, date_maturity, debit,
+        SELECT partner_parent_id, currency_id, move_id, date, date_maturity, debit,
                             credit, amount, open_amount, name, ref, blocked
         FROM Q3
         ORDER BY date, date_maturity, move_id"""
@@ -136,7 +136,7 @@ class OutstandingStatement(models.AbstractModel):
             )
         )
         for row in self.env.cr.dictfetchall():
-            res[row.pop("partner_id")].append(row)
+            res[row.pop("partner_parent_id")].append(row)
         return res
 
     @api.model
