@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from dateutil.relativedelta import relativedelta
-
+import base64
 from odoo import api, fields, models
 
 
@@ -54,3 +54,77 @@ class ActivityStatementWizard(models.TransientModel):
     def _export(self, report_type):
         """Default export is PDF."""
         return self._print_report(report_type)
+
+
+    def button_send_mail(self):
+        
+        mail_temp_obj = self.env['mail.template']
+        Mail = self.env['mail.mail']
+        Attachment = self.env['ir.attachment']
+        if self._context['active_ids']:
+            for partner in self.env['res.partner'].browse(self._context['active_ids']):
+                
+                
+                attachments = []
+                data = self._prepare_statement()
+                data['partner_ids'] = [partner.id]
+                
+                template = self.env.ref('partner_statement.action_print_activity_statement', False)
+                report_name = template.report_name
+                report = template
+                report_service = template.report_name
+
+                if report.report_type in ['qweb-html', 'qweb-pdf']:
+                    result, format = report._render_qweb_pdf([partner.id],data=data)
+                else:
+                    res = report._render([res_id])
+                    if not res:
+                        raise UserError(_('Unsupported report type %s found.', report.report_type))
+                    result, format = res
+
+                # TODO in trunk, change return format to binary to match message_post expected format
+                result = base64.b64encode(result)
+                if not report_name:
+                    report_name = 'report.' + report_service
+                ext = "." + format
+                if not report_name.endswith(ext):
+                    report_name += ext
+                attachments.append((report_name, result))
+                recipient_ids = [(4, partner.id) ]
+#                 values.update(email_values or {})
+                attachment_ids = []
+                attachments = attachments
+                mail = Mail.create({})
+                for attachment in attachments:
+                    attachment_data = {
+                        'name': attachment[0],
+                        # 'datas_fname': attachment[0],
+                        'datas': attachment[1],
+                        'type': 'binary',
+                        'res_model': 'mail.message',
+                        'res_id': mail.mail_message_id.id,
+                    }
+                    kk = Attachment.create(attachment_data).id
+                    attachment_ids.append(kk)
+                if attachment_ids:
+#                     values['attachment_ids'] = [(6, 0, attachment_ids)]
+                    mail.write({'attachment_ids': [(6, 0, attachment_ids)]})
+                mail.write({'attachment_ids': [(6, 0, attachment_ids)]})
+                body_html = "<p>Dear %(title)s,<br><br><p><br></p></p><p>Please follow below attachments,<br></p>" % {
+                    'title': partner.name,
+                }
+                mail.write({'body_html': body_html,'recipient_ids':recipient_ids})
+                mail.send()
+                attachments = False
+                template = False
+                report_name = False
+                report = False
+                result = False
+                attachment_ids = False
+                
+                
+                
+                
+                
+                
+                

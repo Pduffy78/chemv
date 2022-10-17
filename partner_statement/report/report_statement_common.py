@@ -12,6 +12,8 @@ class ReportStatementCommon(models.AbstractModel):
 
     _name = "statement.common"
     _description = "Statement Reports Common"
+    
+
 
     def _get_invoice_address(self, part):
         inv_addr_id = part.address_get(["invoice"]).get("invoice", part.id)
