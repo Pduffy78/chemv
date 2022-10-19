@@ -140,7 +140,7 @@
             </xpath>
             <xpath expr="//field[@name='date_end']" position="before">
                 <field name="date_start" />
-                <button name="button_send_mail" type="object" string="Send Email"/>
+                <!-- <button name="button_send_mail" type="object" string="Send Email"/> -->
             </xpath>
             <xpath expr="//button[@name='button_export_xlsx']" position="after">
             or
