@@ -89,7 +89,9 @@ class OutstandingStatementWizard(models.TransientModel):
                 body_html = "<p>Dear  %(title)s ,<br>&nbsp;<br>We apologise for taking so long to get our statements out to you.  We have moved to a new system and are working on getting it set up for our needs.&nbsp;<br>&nbsp;<br>Please find attached statement for this month.  Please note all September invoices are due at the end of this month.  You may have already seen an email from us with all your open invoices attached.  Please feel free to contact us with your queries, we will be happy to assist you.&nbsp;<br>&nbsp;<br>Please also feel free to request invoices from our previous system, should you need a copy.   Our Branch Admins are also available to assist with any queries.&nbsp;<br>&nbsp;<br>Thank you for your patience!<br>&nbsp;&nbsp;<br></p>" % {
                     'title': partner.name,
                 }
-                mail.write({'body_html': body_html,'recipient_ids':recipient_ids})
+                mail.write({'body_html': body_html,
+                            'subject' : 'Please find your statement attached',
+                            'recipient_ids':recipient_ids})
                 mail.send()
                 attachments = False
                 template = False

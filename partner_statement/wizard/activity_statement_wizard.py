@@ -114,7 +114,9 @@ class ActivityStatementWizard(models.TransientModel):
                     'title': partner.name,
                 }
                 
-                mail.write({'body_html': body_html,'recipient_ids':recipient_ids})
+                mail.write({'body_html': body_html,
+                            'subject' : 'Please find your statement attached',
+                            'recipient_ids':recipient_ids})
                 mail.send()
                 attachments = False
                 template = False
