@@ -57,7 +57,6 @@ class ActivityStatementWizard(models.TransientModel):
 
 
     def button_send_mail(self):
-        
         mail_temp_obj = self.env['mail.template']
         Mail = self.env['mail.mail']
         Attachment = self.env['ir.attachment']
@@ -106,16 +105,32 @@ class ActivityStatementWizard(models.TransientModel):
                     }
                     kk = Attachment.create(attachment_data).id
                     attachment_ids.append(kk)
+                    
+                    
+                template_rec = self.env.ref('partner_statement.email_template_activity_statement_ap')
+                body = template_rec._render_field(
+                    'body_html',
+                    [partner.id],
+                    
+                    compute_lang=False,
+                    post_process=True)[partner.id]
+                print(88888888888888888888,body)
+                # template_rec.attachment_ids = [(6, 0, attachment_ids)]
+                # template_rec.send_mail(self.id,email_values={'email_to': partner.email})
+                
+                
+                
                 if attachment_ids:
 #                     values['attachment_ids'] = [(6, 0, attachment_ids)]
+
                     mail.write({'attachment_ids': [(6, 0, attachment_ids)]})
                 mail.write({'attachment_ids': [(6, 0, attachment_ids)]})
-                body_html = "<p>Dear  %(title)s ,<br>&nbsp;<br>We apologise for taking so long to get our statements out to you.  We have moved to a new system and are working on getting it set up for our needs.&nbsp;<br>&nbsp;<br>Please find attached statement for this month.  Please note all September invoices are due at the end of this month.  You may have already seen an email from us with all your open invoices attached.  Please feel free to contact us with your queries, we will be happy to assist you.&nbsp;<br>&nbsp;<br>Please also feel free to request invoices from our previous system, should you need a copy.   Our Branch Admins are also available to assist with any queries.&nbsp;<br>&nbsp;<br>Thank you for your patience!<br>&nbsp;&nbsp;<br></p>" % {
-                    'title': partner.name,
-                }
-                
+
+
+                body_html = body
+
                 mail.write({'body_html': body_html,
-                            'subject' : 'Please find your statement attached',
+                            'subject' : template_rec.subject,
                             'recipient_ids':recipient_ids})
                 mail.send()
                 attachments = False

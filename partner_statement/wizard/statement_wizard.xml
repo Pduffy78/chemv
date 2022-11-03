@@ -128,8 +128,7 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='info']/span" position="before">
                 <span
-                    class="o_form_label"
-                >The activity statement provides details of all activity on
+                    class="o_form_label">The activity statement provides details of all activity on
                     a partner's receivables and payables between two selected dates. This includes all invoices,
                     refunds and payments. Any outstanding balance dated prior to the chosen statement
                     period will appear as a forward balance at the top of the statement. The list is
