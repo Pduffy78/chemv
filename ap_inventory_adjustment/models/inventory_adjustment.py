@@ -98,7 +98,7 @@ class Inventory(models.Model):
         }
         context = {
             'default_is_editable': True,
-            # 'default_inventory_id': self.id,
+            'default_inventory_id': self.id,
             'default_company_id': self.company_id.id,
            'hide_location': True,
            'inventory_mode': True, 
@@ -122,7 +122,7 @@ class Inventory(models.Model):
         for rec in self.product_ids:
             if rec.id not in Quants.ids:
                 self.env['stock.quant'].create({
-                        # 'inventory_id': self.id,
+                        'inventory_id': self.id,
                         'product_id': rec.id,
                         'location_id': location_ids[0],
                         'user_id':self.env.user.id,
@@ -149,11 +149,17 @@ class Inventory(models.Model):
         
         return action
     
-# class StockMove(models.Model):
-#
-#     _inherit = 'stock.move'
-#
-#     inventory_id = fields.Many2one('stock.inventory.inherit')
+class StockMove(models.Model):
+    
+    _inherit = 'stock.move'
+    
+    inventory_id = fields.Many2one('stock.inventory.inherit')
 
+
+class stock_quant(models.Model):
+    
+    _inherit = 'stock.quant'
+    
+    inventory_id = fields.Many2one('stock.inventory.inherit')
     
     
