@@ -87,10 +87,10 @@
                 </div>
                 <group>
                     <group>
-                        <field name="location_ids" options="{'no_create': True}"
+                        <!-- <field name="location_ids" options="{'no_create': True}"
                                widget="many2many_tags"
                                force_save="1"
-                               groups="stock.group_stock_multi_locations"/>
+                               groups="stock.group_stock_multi_locations"/> -->
                         <field name="product_categ_id"/>
                         <field name="product_ids"
                                context="{'default_type': 'product'}"
