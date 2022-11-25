@@ -130,11 +130,19 @@
         </field>
     </record>
 
+	<record model="ir.actions.server" id="action_update_apply">
+       <field name="name">Apply</field>
+       <field name="model_id" ref="stock.model_stock_quant"/>
+       <field name="binding_model_id" ref="stock.model_stock_quant"/>
+       <field name="state">code</field>
+       <field name="code">
+           action = records.action_update_apply()
+       </field>
+   </record>
+    <menuitem id="stock.menu_action_inventory_tree" name="Import Inventory Adjustments" parent="stock.menu_stock_warehouse_mgmt" sequence="30" action="stock.action_view_inventory_tree" />
 
-    
-
-<menuitem id="ap_inventory_adjustment_menu" name="Inventory Adjustment AP"
+<menuitem id="ap_inventory_adjustment_menu" name="Inventory Adjustments"
 				  action="action_inventory_form_inherit" 
-                  parent="stock.menu_stock_inventory_control"
-                  sequence="1"/> 
+                  parent="stock.menu_stock_warehouse_mgmt"
+                  /> 
 </odoo>

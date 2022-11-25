@@ -145,6 +145,9 @@ class Inventory(models.Model):
         else:
             # no product_ids => we're allowed to create new products in tree
             action['view_id'] = self.env.ref('stock.view_stock_quant_tree_inventory_editable').id
+            domain = [('location_id.usage', 'in', ['internal', 'transit'])]
+            action['context'] = context
+            action['domain'] = domain
 
         
         return action
@@ -162,4 +165,6 @@ class stock_quant(models.Model):
     
     inventory_id = fields.Many2one('stock.inventory.inherit')
     
-    
+    def action_update_apply(self):
+        for rec in self:
+            rec.action_apply_inventory()
