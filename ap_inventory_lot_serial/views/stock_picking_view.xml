@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_picking_form_inh" model="ir.ui.view">
+        <field name="name">stock.picking.form.view</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_dest_id']" position="after">
+                <field name="location_transit_id"
+                       attrs="{'invisible': ['|',('picking_type_code','!=','internal'),('is_transit','=', True)]}"/>
+	        </xpath>
+	        <xpath expr="//field[@name='origin']" position="after">
+                <field name="is_transit" invisible="1"/>
+	        </xpath>
+	        <xpath expr="//div[@name='button_box']" position="inside">
+                <button string="Transfer" type="object" name="button_view_created_transfer" class="oe_stat_button" icon="fa-chevron-right" attrs="{'invisible': ['|',('state', 'not in', ['done']),('is_transit','=', True)]}"/>
+            </xpath>
+	    </field>
+    </record>
+</odoo>
