@@ -10,11 +10,11 @@ class ir_config_parameter(models.Model):
     
     
     
-    def create(self, vals):
-        if vals.get('key') == 'web.base.url' and vals.get('value'):
-            param = self.env.ref('ap_system_parameter.demo_chemv_params')
-            vals.update({'value': param.value})
-        res = super(ir_config_parameter, self).create(vals)
+    # def create(self, vals):
+    #     if vals.get('key') == 'web.base.url' and vals.get('value'):
+    #         param = self.env.ref('ap_system_parameter.demo_chemv_params')
+    #         vals.update({'value': param.value})
+    #     res = super(ir_config_parameter, self).create(vals)
     
     
     def write(self, vals):
