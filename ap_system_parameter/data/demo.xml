@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo >
+
+<data noupdate="1">
+
+   <record id="demo_chemv_params" model="ir.config_parameter">	      
+		<field name="key">required_base_url</field>
+		<field name="value">https://chemvulc.co.za</field>
+	</record>
+	
+	
+</data>
+	
+</odoo>
