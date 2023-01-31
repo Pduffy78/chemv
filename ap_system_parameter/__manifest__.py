@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name" : "Ap System Parameters",
-    "version" : "14.01",
+    "version" : "14.02",
     "summary": "Ap System Parameters",
     "sequence": 1,
     "description": """ Ap System Parameters""",
