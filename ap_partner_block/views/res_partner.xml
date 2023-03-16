@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="category_id" position="after">
-                <field name="follow_up"/>
+                <field name="is_follow_up_new"/>
             </field>
 	    </field>
     </record>
