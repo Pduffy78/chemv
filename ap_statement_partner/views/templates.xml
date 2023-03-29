@@ -3,7 +3,7 @@
 
         <template id="ap_statment_partner" inherit_id="partner_statement.outstanding_statement_document">
           <xpath expr="//table[@class='table table-sm table-statement']" position="replace">
-            <table>
+            <table class='table table-sm table-statement'>
                <thead>
                         <tr>
                             <th>Reference number</th>
