@@ -95,60 +95,58 @@ class ReportStatementCommon(models.AbstractModel):
                 open_due_currency, move_id, company_id,
             CASE
                 WHEN %(date_end)s <= date_maturity AND currency_id is null
+                    THEN 0.0
+                WHEN %(date_end)s <= date_maturity AND currency_id is not null
+                    THEN 0.0
+                ELSE 0.0
+            END as current,
+            CASE
+                WHEN %(date_end)s <= date_maturity AND currency_id is null
                     THEN open_due
                 WHEN %(date_end)s <= date_maturity AND currency_id is not null
                     THEN open_due_currency
                 ELSE 0.0
-            END as current,
-            CASE
-                WHEN %(minus_30)s < date_maturity
-                    AND date_maturity < %(date_end)s
-                    AND currency_id is null
-                THEN open_due
-                WHEN %(minus_30)s < date_maturity
-                    AND date_maturity < %(date_end)s
-                    AND currency_id is not null
-                THEN open_due_currency
-                ELSE 0.0
             END as b_1_30,
             CASE
-                WHEN %(minus_60)s < date_maturity
-                    AND date_maturity <= %(minus_30)s
+                WHEN %(minus_30)s < date_maturity
+                    AND date_maturity < %(date_end)s
                     AND currency_id is null
                 THEN open_due
-                WHEN %(minus_60)s < date_maturity
-                    AND date_maturity <= %(minus_30)s
+                WHEN %(minus_30)s < date_maturity
+                    AND date_maturity < %(date_end)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
             END as b_30_60,
             CASE
-                WHEN %(minus_90)s < date_maturity
-                    AND date_maturity <= %(minus_60)s
+                WHEN %(minus_60)s < date_maturity
+                    AND date_maturity <= %(minus_30)s
                     AND currency_id is null
                 THEN open_due
-                WHEN %(minus_90)s < date_maturity
-                    AND date_maturity <= %(minus_60)s
+                WHEN %(minus_60)s < date_maturity
+                    AND date_maturity <= %(minus_30)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
             END as b_60_90,
             CASE
-                WHEN %(minus_120)s < date_maturity
-                    AND date_maturity <= %(minus_90)s
+                WHEN %(minus_90)s < date_maturity
+                    AND date_maturity <= %(minus_60)s
                     AND currency_id is null
                 THEN open_due
-                WHEN %(minus_120)s < date_maturity
-                    AND date_maturity <= %(minus_90)s
+                WHEN %(minus_90)s < date_maturity
+                    AND date_maturity <= %(minus_60)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
             END as b_90_120,
             CASE
-                WHEN date_maturity <= %(minus_120)s
+                WHEN %(minus_120)s < date_maturity
+                    AND date_maturity <= %(minus_90)s
                     AND currency_id is null
                 THEN open_due
-                WHEN date_maturity <= %(minus_120)s
+                WHEN %(minus_120)s < date_maturity
+                    AND date_maturity <= %(minus_90)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0

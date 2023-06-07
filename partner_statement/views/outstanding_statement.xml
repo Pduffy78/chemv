@@ -62,7 +62,7 @@
                                     t-att-class="'statement-blocked' if line['blocked'] else ''"
                                 >
                                     <td>
-                                        <span t-esc="line['move_id']" />
+                                        <span t-esc="line" />
                                     </td>
                                     <td>
                                         <span t-esc="line['date']" />
