@@ -94,16 +94,16 @@ class ReportStatementCommon(models.AbstractModel):
             SELECT partner_parent_id, currency_id, date_maturity, open_due,
                 open_due_currency, move_id, company_id,
             CASE
-                WHEN %(date_end)s <= date_maturity AND currency_id is null
-                    THEN 0.0
-                WHEN %(date_end)s <= date_maturity AND currency_id is not null
-                    THEN 0.0
+                WHEN %(date_end)s <= date_maturity - interval'1 month' AND currency_id is null
+                    THEN open_due
+                WHEN %(date_end)s <= date_maturity - interval'1 month' AND currency_id is not null
+                    THEN open_due_currency
                 ELSE 0.0
             END as current,
             CASE
-                WHEN %(date_end)s <= date_maturity AND currency_id is null
+                WHEN EXTRACT(MONTH FROM %(date_end)s) = EXTRACT(MONTH FROM date_maturity)  AND currency_id is null
                     THEN open_due
-                WHEN %(date_end)s <= date_maturity AND currency_id is not null
+                WHEN EXTRACT(MONTH FROM %(date_end)s) = EXTRACT(MONTH FROM date_maturity)  AND currency_id is not null
                     THEN open_due_currency
                 ELSE 0.0
             END as b_1_30,
@@ -318,6 +318,7 @@ class ReportStatementCommon(models.AbstractModel):
                 date_start, DEFAULT_SERVER_DATE_FORMAT
             ).date()
         date_end = data["date_end"]
+        print('-111111111111111111111-',date_end)
         if isinstance(date_end, str):
             date_end = datetime.strptime(date_end, DEFAULT_SERVER_DATE_FORMAT).date()
         account_type = data["account_type"]
