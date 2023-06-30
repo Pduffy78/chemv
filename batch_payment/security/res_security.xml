@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="batch_payment_company_rule" model="ir.rule">
+            <field name="name">Vendor Batch Payment Company Rule</field>
+            <field name="model_id" ref="model_ix_batch_payment_ap"/>
+            <field name="domain_force">[('company_id','=',user.company_id.id)]</field>
+        </record>
+    </data>
+</odoo>
