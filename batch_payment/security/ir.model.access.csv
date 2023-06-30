@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ix_batch_payment_ap,user.ix.batch.payment.ap,model_ix_batch_payment_ap,base.group_user,1,1,1,1
-access_vendor_invoice_ap,user.vendor.invoice.ap,model_vendor_invoice_ap,base.group_user,1,1,1,1
-access_batch_payment_csv_wizrd,batch.payment.csv.wizrd,model_batch_payment_csv_wizrd,,1,1,1,1
-access_ix_batch_payment_vendor_report,ix.batch.payment.vendor.report,model_ix_batch_payment_vendor_report,,1,1,1,1
+access_ix_batch_payment_ap,user.ix.batch.payment.ap,model_ix_batch_payment_ap,base.group_user,1,1,1,0
+access_vendor_invoice_ap,user.vendor.invoice.ap,model_vendor_invoice_ap,base.group_user,1,1,1,0
+access_batch_payment_csv_wizrd,batch.payment.csv.wizrd,model_batch_payment_csv_wizrd,,1,1,1,0
+access_ix_batch_payment_vendor_report,ix.batch.payment.vendor.report,model_ix_batch_payment_vendor_report,,1,1,1,0
