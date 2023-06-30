@@ -8,11 +8,11 @@
 				<form create="false">
 					<header>
 						<button string="Approve" type="object" name="btn_approved"
-							groups="account.group_account_readonly" class="btn-primary"
+							groups="account.group_account_manager" class="btn-primary"
 							attrs="{'invisible': [('state','in',['approved','rejected'])]}" />
 						<button string="Reject" type="object" name="btn_rejected"
 							attrs="{'invisible': [('state','in',['rejected'])]}"
-							groups="account.group_account_readonly" class="btn-primary" />
+							groups="account.group_account_manager" class="btn-primary" />
 						<button string="Print Report" type="object"
 							name="print_batch_payment_pdf" class="btn-primary" />
 						<button string="Print XLS Report" type="object"
