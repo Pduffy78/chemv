@@ -273,21 +273,10 @@ class ix_batch_payment_ap(models.Model):
                 ws[j].write(i, 0, record.partner_id.name[:30], style0)
                 ws[j].write(i, 1, record.partner_id.acc_no_ap, style0)
                 ws[j].write(i, 2, record.partner_id.branch_name_code, style0)
-                ws[j].write(i, 3, 'iX engineers (Pty) Ltd', style0)
-                ws[j].write(i, 4, 'iX engineers (Pty) Ltd', style0)
-                req_account = '81324413'
-                if self.env.user.company_id.name == 'Kera Engineering (Pty) Ltd':
-                    req_account = '420201173'
-                elif self.env.user.company_id.name == 'Kurema Engineering (Pty) Ltd':
-                    req_account = '421495650'
-                elif self.env.user.company_id.name == 'iX Academy (Pty) Ltd':
-                    req_account = '23365749'
-                elif self.env.user.company_id.name == 'iX Engineers':
-                    req_account = '81324413'
-                elif self.env.user.company_id.name == 'iX Engineers – Wilson & Pass Inc Joint Venture':
-                    req_account = '420210997'
-                ws[j].write(i, 5, req_account, style0)
-                ws[j].write(i, 6, '051001', style0)
+                ws[j].write(i, 3, self.env.user.company_id.name, style0)
+                ws[j].write(i, 4, self.env.user.company_id.name, style0)
+                ws[j].write(i, 5, self.company_id.dr_account_number, style0)
+                ws[j].write(i, 6, self.company_id.dr_branch_number, style0)
                 ws[j].write(i, 7, self.number, style0)
                 ws[j].write(i, 8, str(self.payment_date).replace("-",""), style0)
                 ws[j].write(i, 9, sum(self.vendor_bill_ids.filtered(lambda x: x.partner_id == partner).mapped('pay_amount')), style0)
@@ -415,8 +404,15 @@ class AccountInvoice(models.Model):
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
     
-    
-    
     is_batch_payment = fields.Boolean(string='Is Batch Payment',default=False)
+    
+class ResCompany(models.Model):
+    _inherit = 'res.company'
+    
+    dr_account_number = fields.Char(string='Dr Account Number')
+    dr_branch_number = fields.Char(string='Dr Branch Number')
+    
+    
+    
     
     

@@ -150,5 +150,22 @@
                 </xpath>
 		</field>
 	</record>
+	
+	
+	<record id="res_company_batch_payment" model="ir.ui.view">
+        <field name="name">res.company.batch.payment</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="after">
+                     <field name="dr_account_number" />
+                     <field name="dr_branch_number" />
+            </xpath>
+        </field>
+    </record>
+    
+    
+    
+    
 	</data>
 </odoo>
