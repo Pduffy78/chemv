@@ -47,6 +47,8 @@ class ix_batch_payment_ap(models.Model):
                     raise UserError(_('You can only register payments for open invoices'))
                 if not data.partner_id.is_approve:
                     raise UserError(_('Please approve bank details of %s')%data.partner_id.name)
+                if data.payment_state in ['paid', 'in_payment']:
+                    raise UserError(_('Vendor bill %s is already been paid')%data.name)
                 ap_tuple = (0,0,{
                     'invoice_id' : data.id,
                     'partner_id' : data.partner_id.id,
@@ -138,8 +140,11 @@ class ix_batch_payment_ap(models.Model):
     
     # @api.multi
     def btn_approved(self):
-        if self.vendor_bill_ids.filtered(lambda x: x.invoice_id.state == 'paid'):
-            raise UserError(_('Vendor bill %s is already been paid')%self.vendor_bill_ids.filtered(lambda x: x.invoice_id.state in ['paid', 'in_payment'])[0].invoice_id.number)
+        if self.vendor_bill_ids.filtered(lambda x: x.invoice_id.state != 'posted'):
+            raise UserError(_('Vendor bill %s is not in Posted state')%self.vendor_bill_ids.filtered(lambda x: x.invoice_id.state != 'posted')[0].invoice_id.number)
+        if self.vendor_bill_ids.filtered(lambda x: x.invoice_id.payment_state in ['paid', 'in_payment']):
+            # raise UserError(_('Vendor bill %s is not in Posted state')%self.vendor_bill_ids.filtered(lambda x: x.invoice_id.payment_state in ['paid', 'in_payment'])[0].invoice_id.number)
+            raise UserError(_('Vendor bill %s is already been paid')%self.vendor_bill_ids.filtered(lambda x: x.invoice_id.payment_state in ['paid', 'in_payment'])[0].invoice_id.number)
         partners = self.vendor_bill_ids.mapped('partner_id')
         for partner in partners:
             invoice_ids = []
