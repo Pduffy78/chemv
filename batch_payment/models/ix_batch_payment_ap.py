@@ -189,7 +189,8 @@ class ix_batch_payment_ap(models.Model):
                     'amount':  total_amount, 
                     'date': self.payment_date, 
                     'ref': communication,
-                    'journal_id': self.bank_id.id
+                    'journal_id': self.bank_id.id,
+                    'batch_payment_id' : self.id
                     }
             payment = self.env['account.payment'].create(vals)
             payment.action_post()
@@ -203,6 +204,9 @@ class ix_batch_payment_ap(models.Model):
     # @api.one
     def btn_rejected(self):
         self.state ='rejected'  
+        for payment in self.env['account.payment'].search([('batch_payment_id','=',self.id)]):
+            payment.action_draft()
+            
         
     # @api.multi
     def unlink(self):
@@ -418,6 +422,9 @@ class ResCompany(models.Model):
     dr_branch_number = fields.Char(string='Dr Branch Number')
     
     
-    
-    
+class AccountPayment(models.Model):
+    _inherit = 'account.payment'
+        
+   
+    batch_payment_id = fields.Many2one('ix.batch.payment.ap',string='Batch Payment')
     
