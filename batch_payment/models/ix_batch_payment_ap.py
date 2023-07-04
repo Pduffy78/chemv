@@ -206,7 +206,7 @@ class ix_batch_payment_ap(models.Model):
         self.state ='rejected'  
         for payment in self.env['account.payment'].search([('batch_payment_id','=',self.id)]):
             payment.action_draft()
-            
+            payment.action_cancel()
         
     # @api.multi
     def unlink(self):
