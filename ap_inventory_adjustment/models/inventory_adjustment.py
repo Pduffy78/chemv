@@ -169,7 +169,6 @@ class stock_quant(models.Model):
         for rec in self:
             rec.action_apply_inventory()
     
-    @api.model
     def ap_onchange_location_or_product_id(self):
         print(1111111111111)
         vals = {}
