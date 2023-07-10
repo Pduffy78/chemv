@@ -169,8 +169,9 @@ class stock_quant(models.Model):
         for rec in self:
             rec.action_apply_inventory()
     
-    # @api.model
-    # def create(self, vals):
-    #     res = super(stock_quant, self).create(vals)
-    #     res._onchange_location_or_product_id()
-    #     return res
+    @api.model
+    def create(self, vals):
+        res = super(stock_quant, self).create(vals)
+        for rec in res:
+            rec._onchange_location_or_product_id()
+        return res
