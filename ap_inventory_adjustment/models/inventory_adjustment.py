@@ -186,7 +186,7 @@ class stock_quant(models.Model):
                 for qnt in quant:
                     if qnt and qnt.quantity and not record.quantity:
                         record.quantity = qnt.quantity
-                        qnt.action_reset()
+                        qnt.action_set_inventory_quantity_to_zero()
     
                 # Special case: directly set the quantity to one for serial numbers,
                 # it'll trigger `inventory_quantity` compute.
