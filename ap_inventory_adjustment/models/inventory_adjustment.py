@@ -184,8 +184,9 @@ class stock_quant(models.Model):
                     record.product_id, record.location_id, lot_id=record.lot_id,
                     package_id=record.package_id, owner_id=record.owner_id, strict=True)
                 for qnt in quant:
-                    if qnt and qnt.quantity:
+                    if qnt and qnt.quantity and not record.quantity:
                         record.quantity = qnt.quantity
+                        qnt.action_reset()
     
                 # Special case: directly set the quantity to one for serial numbers,
                 # it'll trigger `inventory_quantity` compute.
