@@ -184,7 +184,7 @@ class stock_quant(models.Model):
                     record.product_id, record.location_id, lot_id=record.lot_id,
                     package_id=record.package_id, owner_id=record.owner_id, strict=True)
                 for qnt in quant:
-                    if qnt and not qnt.quantity:
+                    if qnt and qnt.quantity:
                         record.quantity = qnt.quantity
     
                 # Special case: directly set the quantity to one for serial numbers,
