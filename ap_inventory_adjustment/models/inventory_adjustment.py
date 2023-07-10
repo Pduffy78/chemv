@@ -168,3 +168,11 @@ class stock_quant(models.Model):
     def action_update_apply(self):
         for rec in self:
             rec.action_apply_inventory()
+    
+    @api.model
+    def create(self, vals):
+        res = super(stock_quant, self).create(vals)
+        res._onchange_location_or_product_id()
+        if self._is_inventory_mode():
+            res._check_company()
+        return res
