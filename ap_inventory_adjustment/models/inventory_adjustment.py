@@ -170,30 +170,31 @@ class stock_quant(models.Model):
             rec.action_apply_inventory()
     
     def ap_onchange_location_or_product_id(self):
-        print(1111111111111)
-        vals = {}
-
-        # Once the new line is complete, fetch the new theoretical values.
-        if self.product_id and self.location_id:
-            # Sanity check if a lot has been set.
-            if self.lot_id:
-                if self.tracking == 'none' or self.product_id != self.lot_id.product_id:
-                    vals['lot_id'] = None
-
-            quant = self._gather(
-                self.product_id, self.location_id, lot_id=self.lot_id,
-                package_id=self.package_id, owner_id=self.owner_id, strict=True)
-            if quant:
-                self.quantity = quant.quantity
-
-            # Special case: directly set the quantity to one for serial numbers,
-            # it'll trigger `inventory_quantity` compute.
-            if self.lot_id and self.tracking == 'serial':
-                vals['inventory_quantity'] = 1
-                vals['inventory_quantity_auto_apply'] = 1
-
-        if vals:
-            self.update(vals)
+        for record in self:
+            vals = {}
+    
+            # Once the new line is complete, fetch the new theoretical values.
+            if record.product_id and record.location_id:
+                # Sanity check if a lot has been set.
+                if record.lot_id:
+                    if record.tracking == 'none' or record.product_id != record.lot_id.product_id:
+                        vals['lot_id'] = None
+    
+                quant = record._gather(
+                    record.product_id, record.location_id, lot_id=record.lot_id,
+                    package_id=record.package_id, owner_id=record.owner_id, strict=True)
+                for qnt in quant:
+                    if qnt and not qnt.quantity:
+                        record.quantity = qnt.quantity
+    
+                # Special case: directly set the quantity to one for serial numbers,
+                # it'll trigger `inventory_quantity` compute.
+                if record.lot_id and record.tracking == 'serial':
+                    vals['inventory_quantity'] = 1
+                    vals['inventory_quantity_auto_apply'] = 1
+    
+            if vals:
+                record.update(vals)
     
     # @api.model
     # def create(self, vals):
