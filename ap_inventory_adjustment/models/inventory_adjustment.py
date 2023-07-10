@@ -196,9 +196,9 @@ class stock_quant(models.Model):
         if vals:
             self.update(vals)
     
-    # @api.model
-    # def create(self, vals):
-    #     res = super(stock_quant, self).create(vals)
-    #     for rec in res:
-    #         rec._onchange_location_or_product_id()
-    #     return res
+    @api.model
+    def create(self, vals):
+        res = super(stock_quant, self).create(vals)
+        for rec in res:
+            rec._onchange_location_or_product_id()
+        return res
