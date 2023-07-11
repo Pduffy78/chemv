@@ -169,37 +169,10 @@ class stock_quant(models.Model):
         for rec in self:
             rec.action_apply_inventory()
     
-    def ap_onchange_location_or_product_id(self):
-        for record in self:
-            vals = {}
-    
-            # Once the new line is complete, fetch the new theoretical values.
-            if record.product_id and record.location_id:
-                # Sanity check if a lot has been set.
-                if record.lot_id:
-                    if record.tracking == 'none' or record.product_id != record.lot_id.product_id:
-                        vals['lot_id'] = None
-    
-                quant = record._gather(
-                    record.product_id, record.location_id, lot_id=record.lot_id,
-                    package_id=record.package_id, owner_id=record.owner_id, strict=True)
-                for qnt in quant:
-                    if qnt and qnt.quantity and not record.quantity:
-                        record.quantity = qnt.quantity
-                        qnt.action_set_inventory_quantity_to_zero()
-    
-                # Special case: directly set the quantity to one for serial numbers,
-                # it'll trigger `inventory_quantity` compute.
-                if record.lot_id and record.tracking == 'serial':
-                    vals['inventory_quantity'] = 1
-                    vals['inventory_quantity_auto_apply'] = 1
-    
-            if vals:
-                record.update(vals)
-    
     # @api.model
     # def create(self, vals):
     #     res = super(stock_quant, self).create(vals)
-    #     for rec in res:
-    #         rec._onchange_location_or_product_id()
+    #     res._onchange_location_or_product_id()
+    #     if self._is_inventory_mode():
+    #         res._check_company()
     #     return res
