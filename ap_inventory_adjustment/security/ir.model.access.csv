@@ -1,3 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_stock_inventory_inherit_user,stock.inventory.inherit user,model_stock_inventory_inherit,stock.group_stock_user,1,1,1,0
 access_stock_inventory_inherit_manager,stock.inventory.inherit manager,model_stock_inventory_inherit,stock.group_stock_manager,1,1,1,1
+access_import_inventory_adjustment,import.inventory.adjustment,model_import_inventory_adjustment,stock.group_stock_manager,1,1,1,1
+
+

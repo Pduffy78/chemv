@@ -139,10 +139,15 @@
            action = records.action_update_apply()
        </field>
    </record>
+   
+   
+   
+   
+   
     <menuitem id="stock.menu_action_inventory_tree" name="Import Inventory Adjustments" parent="stock.menu_stock_warehouse_mgmt" sequence="30" action="stock.action_view_inventory_tree" />
 
-<menuitem id="ap_inventory_adjustment_menu" name="Inventory Adjustments"
+<!-- <menuitem id="ap_inventory_adjustment_menu" name="Inventory Adjustments"
 				  action="action_inventory_form_inherit" 
                   parent="stock.menu_stock_warehouse_mgmt"
-                  /> 
+                  /> --> 
 </odoo>
