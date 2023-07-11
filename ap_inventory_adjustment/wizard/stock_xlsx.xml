@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <record model="ir.ui.view" id="view_import_inventory_adjustment">
+            <field name="name">view.import.inventory.adjustment</field>
+            <field name="model">import.inventory.adjustment</field>
+            <field name="type">form</field>
+            <field name="priority">0</field>
+            <field name="arch" type="xml">
+                <form string="Export Xls Report">
+                    <group>
+                        <group>
+                            <field name="upload_csv" />
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="read_xls_book" string="Import"
+                              type="object" class="btn-primary" />
+                              or
+                        <!-- <button name="do_open_records" string="Open"
+                              type="object" class="btn-primary" />
+                                or -->
+                        <button class="oe_link" special="cancel" string="Cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window"
+            id="action_import_inventory_adjustment">
+            <field name="name">Import Inventory Adjustment</field>
+            <field name="res_model">import.inventory.adjustment</field>
+            <!-- <field name="view_type">form</field> -->
+            <field name="view_mode">form</field>
+            <field name="view_id"
+                ref="view_import_inventory_adjustment" />
+            <field name="target">new</field>
+        </record>
+        
+        <menuitem id="import_ap_inventory_adjustment_menu" name="Inventory Adjustments"
+                  action="action_import_inventory_adjustment" 
+                  parent="stock.menu_stock_warehouse_mgmt"
+                  />
+        <!-- <menuitem id="stock.menu_action_inventory_tree" name="Import Inventory Adjustments" 
+            parent="stock.menu_stock_warehouse_mgmt" sequence="30" action="stock.action_view_inventory_tree" /> -->
+    </data>
+</odoo>
