@@ -5,7 +5,7 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     latest_paymn_date = fields.Date(string='Latest Payment Date',compute='_compute_latest_payment_date',store=True)
-    update_payment_date = fields.Boolean(string='Latest Payment Date', default = False)
+    update_payment_date = fields.Boolean(string='Latest Payment Date Update', default = False)
     
     
     @api.depends('move_type', 'line_ids.amount_residual','payment_state', 'update_payment_date')
