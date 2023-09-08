@@ -13,7 +13,7 @@ class AccountMove(models.Model):
         for move in self:
             list_date = []
             payments_widget_vals = {'title': _('Less Payment'), 'outstanding': False, 'content': []}
-            if move.state == 'posted' and move.is_invoice(include_receipts=True):
+            if move.move_type == 'out_invoice' and  move.state == 'posted' and move.is_invoice(include_receipts=True):
                 for data in move._get_reconciled_info_JSON_values():
                     list_date.append(data.get('date'))
                 if list_date:
