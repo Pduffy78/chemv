@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_import_wizard_view" model="ir.ui.view">
+		<field name="name">email.import.wizard.form</field>
+		<field name="model">email.import.wizard</field>
+		<field name="type">form</field>
+		<field name="priority">0</field>
+		<field name="arch" type="xml">
+			<form string="Import file">
+				<label for="upload_xls_file"/>
+				<br />
+				<br />
+				<field name="upload_xls_file"/>
+				<group>
+				    <group>
+					    <field name="mail_list_id" required="1"/>
+					</group>
+				</group>
+				<footer>
+				    <button name="btn_import_email_records" string="Import"
+						    type="object" class="btn-primary" />	    
+					<button string="Cancel" class="btn-default" special="cancel" />
+				</footer>
+			</form>
+		</field>
+	</record>
+
+    <record model="ir.actions.act_window" id="action_email_import_wizard">
+		<field name="name">Email Import</field>
+		<field name="res_model">email.import.wizard</field>
+		<field name="view_mode">form</field>
+		<field name="view_id" ref="email_import_wizard_view"/>
+		<field name="target">new</field>
+	</record>
+
+    <menuitem id="submenu_email_import" name="Email import"
+		parent="mass_mailing.mass_mailing_configuration"
+        sequence="7"
+        action="action_email_import_wizard"/>
+</odoo>
