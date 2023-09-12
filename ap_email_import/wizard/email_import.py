@@ -36,35 +36,35 @@ class EmailImportWizard(models.TransientModel):
         tag_obj = self.env["res.partner.category"]
         # emulate Sheet.get_rows for pre-0.9.4
         for rowx, row in enumerate(map(sheet.row, range(sheet.nrows)), 1):
-            name = str(row[1].value) + ' ' + str(row[2].value)
-            email = row[3].value or row[11].value
-            cellphone = row[4].value or row[12].value
-            street = row[8].value
-            city = row[7].value
-            zip = row[9].value
-            company_name = row[5].value
-            tag_ids = row[6].value
-            tag_ids = tag_ids.split(',')
-            tag_ids_list = []
-            for tag in tag_ids:
-                if tag:
-                    exst_tag = tag_obj.search([('name', '=', tag)], limit = 1)
-                    if not exst_tag and tag:
-                        new_tag = tag_obj.create({'name' : tag})
-                        tag_ids_list.append(new_tag.id)
-                    else:
-                        tag_ids_list.append(exst_tag.id)
-            tag_ids = [(6, 0, tag_ids_list)]
+            name = str(row[1].value)
+            email = row[0].value
+            # cellphone = row[4].value or row[12].value
+            # street = row[8].value
+            # city = row[7].value
+            # zip = row[9].value
+            company_name = row[2].value
+            # tag_ids = row[6].value
+            # tag_ids = tag_ids.split(',')
+            # tag_ids_list = []
+            # for tag in tag_ids:
+            #     if tag:
+            #         exst_tag = tag_obj.search([('name', '=', tag)], limit = 1)
+            #         if not exst_tag and tag:
+            #             new_tag = tag_obj.create({'name' : tag})
+            #             tag_ids_list.append(new_tag.id)
+            #         else:
+            #             tag_ids_list.append(exst_tag.id)
+            # tag_ids = [(6, 0, tag_ids_list)]
             subscription_list_ids = [(0, 0, {'list_id' : self.mail_list_id.id})]
             mailing_contact_obj.create({
                 'name' : name,
                 'email' : email,
-                'cellphone' : cellphone,
-                'street' : street,
-                'city' : city,
-                'zip' : zip,
+                # 'cellphone' : cellphone,
+                # 'street' : street,
+                # 'city' : city,
+                # 'zip' : zip,
                 'company_name' : company_name,
-                'tag_ids' : tag_ids,
+                # 'tag_ids' : tag_ids,
                 'subscription_list_ids' : subscription_list_ids,
                 })
 
