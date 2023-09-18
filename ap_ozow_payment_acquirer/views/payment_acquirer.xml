@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="acquirer_form_ozow_payment" model="ir.ui.view">
+            <field name="name">acquirer.form.yoco.payment</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.payment_acquirer_form"/>
+            <field name="arch" type="xml">
+                <xpath expr='//group[@name="acquirer"]' position='after'>
+                    <group attrs="{'invisible': [('provider', '!=', 'ozow_payment')]}">
+                        <field name="ozow_site_code"/>
+                        <field name="ozow_secret_key"/>
+                        <field name="ozow_api_key"/>
+                        <!-- <field name="payfast_passphrase"/>
+                        <a colspan="2" href="https://sandbox.payfast.co.za" target="_blank">How to configure your PayFast account (look for Signup) ?</a> -->
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
