@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from odoo import _, api, fields, models
 from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT
-from dateutil.relativedelta import relativedelta
+
 
 class ReportStatementCommon(models.AbstractModel):
     """Abstract Report Statement for use in other models"""
@@ -202,20 +202,6 @@ class ReportStatementCommon(models.AbstractModel):
             "minus_120": date_end - timedelta(days=120),
         }
 
-
-    def _get_bucket_dates_days_ap(self, date_end):
-        current_date = date_end.replace(day=1)
-        return {
-            "date_end": date_end,
-            "current_date" : current_date,
-            "minus_30": current_date - relativedelta(months=1),
-            "minus_60": current_date - relativedelta(months=2),
-            "minus_90": current_date - relativedelta(months=3),
-            "minus_120": current_date - relativedelta(months=4),
-        }
-
-
-
     def _get_bucket_dates_months(self, date_end):
         res = {}
         d = date_end
@@ -230,6 +216,7 @@ class ReportStatementCommon(models.AbstractModel):
         buckets = dict(map(lambda x: (x, []), partner_ids))
         partners = tuple(partner_ids)
         full_dates = self._get_bucket_dates(date_end, aging_type)
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',full_dates)
         # pylint: disable=E8103
         # All input queries are properly escaped - false positive
         self.env.cr.execute(
@@ -260,6 +247,7 @@ class ReportStatementCommon(models.AbstractModel):
         )
         for row in self.env.cr.dictfetchall():
             buckets[row.pop("partner_parent_id")].append(row)
+        print(':::::::::::::::::::::::::',buckets)
         return buckets
 
     def _get_bucket_labels(self, date_end, aging_type):
@@ -363,45 +351,50 @@ class ReportStatementCommon(models.AbstractModel):
         balances_forward = self._get_account_initial_balance(
             company_id, partner_ids, date_start, account_type
         )
+        print('>>>>>>>balances_forward',balances_forward)
         #here i need to add report filter as well
-        ap_dates = self._get_bucket_dates_days_ap(date_end)
+        ap_dates = self._get_bucket_dates_days(date_end)
         ap_date_end = ap_dates.get('date_end')
-        ap_current_date = ap_dates.get('current_date')
         ap_minus_30 = ap_dates.get('minus_30')
         ap_minus_60 = ap_dates.get('minus_60')
         ap_minus_90 = ap_dates.get('minus_90')
         ap_minus_120 = ap_dates.get('minus_120')
+        
         if data["show_aging_buckets"]:
             buckets = self._get_account_show_buckets(
                 company_id, partner_ids, date_end, account_type, aging_type
             )
-            if self._name == 'report.partner_statement.outstanding_statement':
-                for partner_id in partner_ids:
-                    current = 0.0
-                    minus_30 = 0.0
-                    minus_60 = 0.0
-                    minus_90 = 0.0
-                    minus_120 = 0.0
-                    over_minus_120 = 0.0
-                    for patch_bucket in lines.get(partner_id):
-                        # for item_pb in patch_bucket:
-                        if patch_bucket.get('date_maturity'):
-                            if ap_date_end >= patch_bucket.get('date_maturity') > ap_current_date:
-                                current = current + patch_bucket.get('open_amount')
-                            elif ap_current_date >= patch_bucket.get('date_maturity') > ap_minus_30:
-                                minus_30 = minus_30 + patch_bucket.get('open_amount')
-                            elif ap_minus_30 >= patch_bucket.get('date_maturity') > ap_minus_60:
-                                minus_60 = minus_60 + patch_bucket.get('open_amount')
-                            elif ap_minus_60 >= patch_bucket.get('date_maturity') > ap_minus_90:
-                                minus_90 = minus_90 + patch_bucket.get('open_amount')
-                            elif ap_minus_90 >= patch_bucket.get('date_maturity') > ap_minus_120:
-                                minus_120 = minus_120 + patch_bucket.get('open_amount')
-                            else:
-                                over_minus_120 = over_minus_120 + patch_bucket.get('open_amount')
-                    for ap_bucket in buckets.get(partner_id):
-                        ap_bucket.update({'current': current, 'b_1_30': minus_30,
-                                           'b_30_60': minus_60, 'b_60_90': minus_90, 'b_90_120': minus_120, 'b_over_120': over_minus_120,
-                                           'balance' : sum([current,minus_30,minus_60,minus_90,minus_120,over_minus_120])})
+            # new_buckets = buckets
+            # {11009: [{'currency_id': 38, 'current': 0.0, 'b_1_30': -1729.03, 'b_30_60': 69.0, 'b_60_90': 0.0, 'b_90_120': 0.0, 'b_over_120': 14832.13, 'balance': 13172.1}]}
+            # for partner_id in partner_ids:
+            #     current = 0.0
+            #     minus_30 = 0.0
+            #     minus_60 = 0.0
+            #     minus_90 = 0.0
+            #     minus_120 = 0.0
+            #     filter_dates = self._get_bucket_dates_days(date_end)
+            #     for patch_bucket in lines.get(partner_id):
+            #         # for item_pb in patch_bucket:
+            #         print('****************',patch_bucket)
+            #         if patch_bucket.get('date_maturity'):
+            #             if ap_date_end >= patch_bucket.get('date_maturity') > ap_minus_30:
+            #                 print('current',current)
+            #                 current = current + patch_bucket.get('open_amount')
+            #             elif ap_minus_30 >= patch_bucket.get('date_maturity') > ap_minus_60:
+            #                 print('ap_minus_30::')
+            #                 minus_30 = minus_30 + patch_bucket.get('open_amount')
+            #             elif ap_minus_60 >= patch_bucket.get('date_maturity') > ap_minus_90:
+            #                 print('ap_minus_60::')
+            #                 minus_60 = minus_60 + patch_bucket.get('open_amount')
+            #             elif ap_minus_90 >= patch_bucket.get('date_maturity') > ap_minus_120:
+            #                 print('ap_minus_90::')
+            #                 minus_90 = minus_90 + patch_bucket.get('open_amount')
+            #             else:
+            #                 minus_120 = minus_120 + patch_bucket.get('open_amount')
+            #                 print('not fall in any condition>>>',patch_bucket)
+                # for ap_bucket in buckets.get(partner_id):
+                #     ap_bucket.update({'current': current, 'b_1_30': minus_30,
+                #                        'b_30_60': minus_60, 'b_60_90': minus_90, 'b_90_120': 0.0, 'b_over_120': 14832.13,})
             bucket_labels = self._get_bucket_labels(date_end, aging_type)
         else:
             bucket_labels = {}
