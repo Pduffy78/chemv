@@ -386,7 +386,7 @@ class ReportStatementCommon(models.AbstractModel):
                     for patch_bucket in lines.get(partner_id):
                         # for item_pb in patch_bucket:
                         if patch_bucket.get('date_maturity'):
-                            if ap_date_end >= patch_bucket.get('date_maturity') > ap_current_date:
+                            if patch_bucket.get('date_maturity') > ap_current_date:
                                 current = current + patch_bucket.get('open_amount')
                             elif ap_current_date >= patch_bucket.get('date_maturity') > ap_minus_30:
                                 minus_30 = minus_30 + patch_bucket.get('open_amount')
