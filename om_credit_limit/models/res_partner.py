@@ -87,7 +87,7 @@ class ResPartner(models.Model):
                           AND account_move_line.reconciled IS NOT TRUE
                           """ + where_clause + """
                           GROUP BY account_move_line.partner_id, act.type
-                          """, [(), 'posted', 1, 'line_section', 'line_note', 'cancel', 1])
+                          """, where_params)
             treated = self.browse()
             for pid, type, val in self._cr.fetchall():
                 partner = self.browse(pid)
