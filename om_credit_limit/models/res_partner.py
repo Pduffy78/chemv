@@ -65,3 +65,44 @@ class ResPartner(models.Model):
     def _commercial_fields(self):
         print("\n\n\n44444444\n\n\n")
         return super(ResPartner, self)._commercial_fields() + ['amount_credit_limit']
+
+    @api.depends_context('company')
+    def _credit_debit_get(self):
+        tables, where_clause, where_params = self.env['account.move.line'].with_context(state='posted', company_id=self.env.company.id)._query_get()
+        where_params = [tuple(self.ids)] + where_params
+        if where_clause:
+            where_clause = 'AND ' + where_clause
+        print("tables:::::::::::::::::",tables)
+        print("where_clause:::::::::::::::::",where_clause)
+        print("where_params:::::::::::::::::",isinstance(self.id, int))
+        if isinstance(self.id, int):
+            self._cr.execute("""SELECT account_move_line.partner_id, act.type, SUM(account_move_line.amount_residual)
+                          FROM """ + tables + """
+                          LEFT JOIN account_account a ON (account_move_line.account_id=a.id)
+                          LEFT JOIN account_account_type act ON (a.user_type_id=act.id)
+                          WHERE act.type IN ('receivable','payable')
+                          AND account_move_line.partner_id IN %s
+                          AND account_move_line.reconciled IS NOT TRUE
+                          """ + where_clause + """
+                          GROUP BY account_move_line.partner_id, act.type
+                          """, [(), 'posted', 1, 'line_section', 'line_note', 'cancel', 1])
+            treated = self.browse()
+            for pid, type, val in self._cr.fetchall():
+                partner = self.browse(pid)
+                if type == 'receivable':
+                    partner.credit = val
+                    if partner not in treated:
+                        partner.debit = False
+                        treated |= partner
+                elif type == 'payable':
+                    partner.debit = -val
+                    if partner not in treated:
+                        partner.credit = False
+                        treated |= partner
+            remaining = (self - treated)
+            remaining.debit = False
+            remaining.credit = False
+        else:
+            for rec in self:
+                rec.debit = False
+                rec.credit = False
