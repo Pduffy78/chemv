@@ -74,10 +74,10 @@ class ResPartner(models.Model):
         where_params = [tuple(self.ids)] + where_params
         if where_clause:
             where_clause = 'AND ' + where_clause
-        print("tables:::::::::::::::::",tables)
-        print("where_clause:::::::::::::::::",where_clause)
-        print("where_params:::::::::::::::::",isinstance(self.id, int))
-        if isinstance(self.id, int):
+        recod = False
+        for record in self:
+            recod = record
+        if recod and isinstance(recod.id, int):
             self._cr.execute("""SELECT account_move_line.partner_id, act.type, SUM(account_move_line.amount_residual)
                           FROM """ + tables + """
                           LEFT JOIN account_account a ON (account_move_line.account_id=a.id)
