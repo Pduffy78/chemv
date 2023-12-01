@@ -86,6 +86,8 @@ class ReportStatementCommon(models.AbstractModel):
         )
 
     def _show_buckets_sql_q2(self, date_end, minus_30, minus_60, minus_90, minus_120):
+        # {'date_end': datetime.date(2023, 9, 20), 'minus_30': datetime.date(2023, 8, 21),
+         # 'minus_60': datetime.date(2023, 7, 22), 'minus_90': datetime.date(2023, 6, 22), 'minus_120': datetime.date(2023, 5, 23)}
         return str(
             self._cr.mogrify(
                 """
@@ -106,43 +108,45 @@ class ReportStatementCommon(models.AbstractModel):
                 ELSE 0.0
             END as b_1_30,
             CASE
-                WHEN %(minus_60)s < date_maturity
-                    AND date_maturity <= %(minus_30)s
+                WHEN %(minus_30)s < date_maturity
+                    AND date_maturity < %(date_end)s
                     AND currency_id is null
                 THEN open_due
-                WHEN %(minus_60)s < date_maturity
-                    AND date_maturity <= %(minus_30)s
+                WHEN %(minus_30)s < date_maturity
+                    AND date_maturity < %(date_end)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
             END as b_30_60,
             CASE
-                WHEN %(minus_90)s < date_maturity
-                    AND date_maturity <= %(minus_60)s
+                WHEN %(minus_60)s < date_maturity
+                    AND date_maturity <= %(minus_30)s
                     AND currency_id is null
                 THEN open_due
-                WHEN %(minus_90)s < date_maturity
-                    AND date_maturity <= %(minus_60)s
+                WHEN %(minus_60)s < date_maturity
+                    AND date_maturity <= %(minus_30)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
             END as b_60_90,
             CASE
-                WHEN %(minus_120)s < date_maturity
-                    AND date_maturity <= %(minus_90)s
+                WHEN %(minus_90)s < date_maturity
+                    AND date_maturity <= %(minus_60)s
                     AND currency_id is null
                 THEN open_due
-                WHEN %(minus_120)s < date_maturity
-                    AND date_maturity <= %(minus_90)s
+                WHEN %(minus_90)s < date_maturity
+                    AND date_maturity <= %(minus_60)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
             END as b_90_120,
             CASE
-                WHEN date_maturity <= %(minus_120)s
+                WHEN %(minus_120)s < date_maturity
+                    AND date_maturity <= %(minus_90)s
                     AND currency_id is null
                 THEN open_due
-                WHEN date_maturity <= %(minus_120)s
+                WHEN %(minus_120)s < date_maturity
+                    AND date_maturity <= %(minus_90)s
                     AND currency_id is not null
                 THEN open_due_currency
                 ELSE 0.0
@@ -195,6 +199,20 @@ class ReportStatementCommon(models.AbstractModel):
             "minus_90": date_end - timedelta(days=90),
             "minus_120": date_end - timedelta(days=120),
         }
+
+
+    def _get_bucket_dates_days_ap(self, date_end):
+        current_date = date_end.replace(day=1)
+        return {
+            "date_end": date_end,
+            "current_date" : current_date,
+            "minus_30": current_date - relativedelta(months=1),
+            "minus_60": current_date - relativedelta(months=2),
+            "minus_90": current_date - relativedelta(months=3),
+            "minus_120": current_date - relativedelta(months=4),
+        }
+
+
 
     def _get_bucket_dates_months(self, date_end):
         res = {}
@@ -258,17 +276,6 @@ class ReportStatementCommon(models.AbstractModel):
             _("Total"),
         ]
 
-
-    def _get_bucket_dates_days_ap(self, date_end):
-        current_date = date_end.replace(day=1)
-        return {
-            "date_end": date_end,
-            "current_date" : current_date,
-            "minus_30": current_date - relativedelta(months=1),
-            "minus_60": current_date - relativedelta(months=2),
-            "minus_90": current_date - relativedelta(months=3),
-            "minus_120": current_date - relativedelta(months=4),
-        }
     def _get_bucket_labels_months(self, date_end):
         return [
             _("Current"),
@@ -293,157 +300,6 @@ class ReportStatementCommon(models.AbstractModel):
             },
             currencies,
         )
-
-    # @api.model
-    # def _get_report_values(self, docids, data=None):
-    #     # flake8: noqa: C901
-    #     """
-    #     @return: returns a dict of parameters to pass to qweb report.
-    #       the most important pair is {'data': res} which contains all
-    #       the data for each partner.  It is structured like:
-    #         {partner_id: {
-    #             'start': date string,
-    #             'end': date_string,
-    #             'today': date_string
-    #             'currencies': {
-    #                 currency_id: {
-    #                     'lines': [{'date': date string, ...}, ...],
-    #                     'balance_forward': float,
-    #                     'amount_due': float,
-    #                     'buckets': {
-    #                         'p1': float, 'p2': ...
-    #               }
-    #           }
-    #       }
-    #     }
-    #     """
-    #     company_id = data["company_id"]
-    #     partner_ids = data["partner_ids"]
-    #     date_start = data.get("date_start")
-    #     if date_start and isinstance(date_start, str):
-    #         date_start = datetime.strptime(
-    #             date_start, DEFAULT_SERVER_DATE_FORMAT
-    #         ).date()
-    #     date_end = data["date_end"]
-    #     if isinstance(date_end, str):
-    #         date_end = datetime.strptime(date_end, DEFAULT_SERVER_DATE_FORMAT).date()
-    #     account_type = data["account_type"]
-    #     aging_type = data["aging_type"]
-    #     today = fields.Date.today()
-    #     amount_field = data.get("amount_field", "amount")
-
-    #     # There should be relatively few of these, so to speed performance
-    #     # we cache them - default needed if partner lang not set
-    #     self._cr.execute(
-    #         """
-    #         SELECT p.id, l.date_format
-    #         FROM res_partner p LEFT JOIN res_lang l ON p.lang=l.code
-    #         WHERE p.id IN %(partner_ids)s
-    #         """,
-    #         {"partner_ids": tuple(partner_ids)},
-    #     )
-    #     date_formats = {r[0]: r[1] for r in self._cr.fetchall()}
-    #     default_fmt = self.env["res.lang"]._lang_get(self.env.user.lang).date_format
-    #     currencies = {x.id: x for x in self.env["res.currency"].search([])}
-
-    #     res = {}
-    #     # get base data
-    #     lines = self._get_account_display_lines(
-    #         company_id, partner_ids, date_start, date_end, account_type
-    #     )
-    #     balances_forward = self._get_account_initial_balance(
-    #         company_id, partner_ids, date_start, account_type
-    #     )
-
-    #     if data["show_aging_buckets"]:
-    #         buckets = self._get_account_show_buckets(
-    #             company_id, partner_ids, date_end, account_type, aging_type
-    #         )
-    #         bucket_labels = self._get_bucket_labels(date_end, aging_type)
-    #     else:
-    #         bucket_labels = {}
-
-    #     # organise and format for report
-    #     format_date = self._format_date_to_partner_lang
-    #     partners_to_remove = set()
-    #     for partner_id in partner_ids:
-    #         res[partner_id] = {
-    #             "today": format_date(today, date_formats.get(partner_id, default_fmt)),
-    #             "start": format_date(
-    #                 date_start, date_formats.get(partner_id, default_fmt)
-    #             ),
-    #             "end": format_date(date_end, date_formats.get(partner_id, default_fmt)),
-    #             "currencies": {},
-    #         }
-    #         currency_dict = res[partner_id]["currencies"]
-
-    #         for line in balances_forward.get(partner_id, []):
-    #             (
-    #                 currency_dict[line["currency_id"]],
-    #                 currencies,
-    #             ) = self._get_line_currency_defaults(
-    #                 line["currency_id"], currencies, line["balance"]
-    #             )
-
-    #         for line in lines[partner_id]:
-    #             if line["currency_id"] not in currency_dict:
-    #                 (
-    #                     currency_dict[line["currency_id"]],
-    #                     currencies,
-    #                 ) = self._get_line_currency_defaults(
-    #                     line["currency_id"], currencies, 0.0
-    #                 )
-    #             line_currency = currency_dict[line["currency_id"]]
-    #             if not line["blocked"]:
-    #                 line_currency["amount_due"] += line[amount_field]
-    #             line["balance"] = line_currency["amount_due"]
-    #             line["date"] = format_date(
-    #                 line["date"], date_formats.get(partner_id, default_fmt)
-    #             )
-    #             line["date_maturity"] = format_date(
-    #                 line["date_maturity"], date_formats.get(partner_id, default_fmt)
-    #             )
-    #             line_currency["lines"].append(line)
-
-    #         if data["show_aging_buckets"]:
-    #             for line in buckets[partner_id]:
-    #                 if line["currency_id"] not in currency_dict:
-    #                     (
-    #                         currency_dict[line["currency_id"]],
-    #                         currencies,
-    #                     ) = self._get_line_currency_defaults(
-    #                         line["currency_id"], currencies, 0.0
-    #                     )
-    #                 line_currency = currency_dict[line["currency_id"]]
-    #                 line_currency["buckets"] = line
-
-    #         if len(partner_ids) > 1:
-    #             values = currency_dict.values()
-    #             if not any([v["lines"] or v["balance_forward"] for v in values]):
-    #                 if data["filter_non_due_partners"]:
-    #                     partners_to_remove.add(partner_id)
-    #                     continue
-    #                 else:
-    #                     res[partner_id]["no_entries"] = True
-    #             if data["filter_negative_balances"]:
-    #                 if not all([v["amount_due"] >= 0.0 for v in values]):
-    #                     partners_to_remove.add(partner_id)
-
-    #     for partner in partners_to_remove:
-    #         del res[partner]
-    #         partner_ids.remove(partner)
-
-    #     return {
-    #         "doc_ids": partner_ids,
-    #         "doc_model": "res.partner",
-    #         "docs": self.env["res.partner"].browse(partner_ids),
-    #         "data": res,
-    #         "company": self.env["res.company"].browse(company_id),
-    #         "Currencies": currencies,
-    #         "account_type": account_type,
-    #         "bucket_labels": bucket_labels,
-    #         "get_inv_addr": self._get_invoice_address,
-    #     }
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -517,8 +373,6 @@ class ReportStatementCommon(models.AbstractModel):
             buckets = self._get_account_show_buckets(
                 company_id, partner_ids, date_end, account_type, aging_type
             )
-            # if 1 == 1:
-                
             if self._name == 'report.partner_statement.outstanding_statement':
                 for partner_id in partner_ids:
                     current = 0.0
@@ -527,7 +381,6 @@ class ReportStatementCommon(models.AbstractModel):
                     minus_90 = 0.0
                     minus_120 = 0.0
                     over_minus_120 = 0.0
-                    filter_dates = self._get_bucket_dates_days(date_end)
                     for patch_bucket in lines.get(partner_id):
                         # for item_pb in patch_bucket:
                         if patch_bucket.get('date'):
@@ -541,10 +394,8 @@ class ReportStatementCommon(models.AbstractModel):
                                 minus_90 = minus_90 + patch_bucket.get('open_amount')
                             elif ap_minus_90 >= patch_bucket.get('date') > ap_minus_120:
                                 minus_120 = minus_120 + patch_bucket.get('open_amount')
-
                             else:
                                 over_minus_120 = over_minus_120 + patch_bucket.get('open_amount')
-                                
                     for ap_bucket in buckets.get(partner_id):
                         ap_bucket.update({'current': current, 'b_1_30': minus_30,
                                            'b_30_60': minus_60, 'b_60_90': minus_90, 'b_90_120': minus_120, 'b_over_120': over_minus_120,
