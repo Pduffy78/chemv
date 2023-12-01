@@ -10,7 +10,7 @@ from hashlib import md5
 import urllib
 import urllib.parse
 from werkzeug import urls
-from odoo.addons.payment.models.payment_acquirer import ValidationError
+from odoo.addons.payment.models.payment_provider import ValidationError
 from odoo import fields, models, api
 from odoo.addons.payment import utils as payment_utils
 from odoo.addons.payment_payfast_73lines.const import SUPPORTED_CURRENCIES
@@ -34,7 +34,7 @@ class AccountPaymentMethod(models.Model):
 
 class AcquirerPayFast(models.Model):
     """ Class to handle all the functions required in integration """
-    _inherit = 'payment.acquirer'
+    _inherit = 'payment.provider'
 
     def _get_payfast_urls(self, environment):
         """ payfast URLS """
@@ -49,13 +49,13 @@ class AcquirerPayFast(models.Model):
                     'https://sandbox.payfast.co.za/eng/process',
             }
 
-    provider = fields.Selection(
+    code = fields.Selection(
         selection_add=[('payfast_73lines', 'PayFast')],
         ondelete={'payfast_73lines': 'set default'})
     payfast_merchant_id = fields.Char('PayFast Merchant Id',
-                                      required_if_provider='payfast_73lines')
+                                      required_if_code='payfast_73lines')
     payfast_secret = fields.Char('PayFast Secret Key',
-                                 required_if_provider='payfast_73lines')
+                                 required_if_code='payfast_73lines')
     payfast_passphrase = fields.Char('PayFast Passphrase Key')
 
     @api.model
@@ -69,13 +69,13 @@ class AcquirerPayFast(models.Model):
         currency = self.env['res.currency'].browse(currency_id).exists()
         if currency and currency.name not in SUPPORTED_CURRENCIES:
             acquirers = acquirers.filtered(
-                lambda a: a.provider != 'payfast_73lines')
+                lambda a: a.code != 'payfast_73lines')
         return acquirers
 
-    def _get_default_payment_method_id(self):
+    def _get_default_payment_method_id(self,code):
         self.ensure_one()
-        if self.provider != 'payfast_73lines':
-            return super()._get_default_payment_method_id()
+        if self.code != 'payfast_73lines':
+            return super()._get_default_payment_method_id(self.code)
         return self.env.ref(
             'payment_payfast_73lines.payment_method_payfast').id
 
@@ -120,15 +120,15 @@ class TxPayFast73lines(models.Model):
 
     def _get_specific_rendering_values(self, processing_values):
         res = super()._get_specific_rendering_values(processing_values)
-        if self.provider != 'payfast_73lines':
+        if self.provider_code != 'payfast_73lines':
             return res
         partner_first_name, partner_last_name = \
             payment_utils.split_partner_name(self.partner_name)
-        base_url = self.acquirer_id.get_base_url()
+        base_url = self.provider_id.get_base_url()
         payfast_tx_values = dict(processing_values)
         data = {
-            'merchant_id': self.acquirer_id.payfast_merchant_id,
-            'merchant_key': self.acquirer_id.payfast_secret,
+            'merchant_id': self.provider_id.payfast_merchant_id,
+            'merchant_key': self.provider_id.payfast_secret,
             'amount': processing_values['amount'],
             'm_payment_id': processing_values['reference'],
             'item_name': processing_values['reference'],
@@ -146,9 +146,9 @@ class TxPayFast73lines(models.Model):
             (base_url, PayFastController._notify_url),
             'cancel_url': '%s' % urls.url_join
             (base_url, PayFastController._cancel_url),
-            'api_url': self.acquirer_id._payfast_get_api_url(),
+            'api_url': self.provider_id._payfast_get_api_url(),
         }
-        data['signature'] = self.acquirer_id._payfast_generate_auth(data)
+        data['signature'] = self.provider_id._payfast_generate_auth(data)
         payfast_tx_values.update(data)
         return payfast_tx_values
 
@@ -177,7 +177,9 @@ class TxPayFast73lines(models.Model):
                 tx = tx_list[0]
             return tx
 
-    def _process_feedback_data(self, data):
+    def _get_velidate_data(self, data):
+        print("self========================",self)
+        transaction_id = self.env['payment.transaction'].search([('id','=',data.get('transaction_id'))])
         """ Override of payment to process
         the transaction based on payfast data.
 
@@ -186,19 +188,21 @@ class TxPayFast73lines(models.Model):
         :param dict data: The feedback data sent by the provider
         :return: None
         """
-        super()._process_feedback_data(data)
-        if self.provider != 'payfast_73lines':
+        
+
+
+        if transaction_id.provider_id.code != 'payfast_73lines':
             return
         payment_status = data.get('payment_status')
         if data.get('payment_status') == 'COMPLETE':
-            self._set_done()
+            transaction_id._set_done()
         elif data.get('payment_status') == 'CANCEL':
-            self._set_canceled()
+            transaction_id._set_canceled()
         else:
             _logger.info(
                 "Payment is %s",
                 payment_status)
-            self._set_error(
+            transaction_id._set_error(
                 "Payfast: " +
                 _("Received data with invalid payment status: %s",
                   payment_status)

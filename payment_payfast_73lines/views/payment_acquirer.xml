@@ -4,11 +4,11 @@
 
         <record id="acquirer_form_payfast" model="ir.ui.view">
             <field name="name">acquirer.form.payfast</field>
-            <field name="model">payment.acquirer</field>
-            <field name="inherit_id" ref="payment.payment_acquirer_form"/>
+            <field name="model">payment.provider</field>
+            <field name="inherit_id" ref="payment.payment_provider_form"/>
             <field name="arch" type="xml">
-                <xpath expr='//group[@name="acquirer"]' position='after'>
-                    <group attrs="{'invisible': [('provider', '!=', 'payfast_73lines')]}">
+                <xpath expr='//page[@name="credentials"]' position='inside'>
+                    <group attrs="{'invisible': [('code', '!=', 'payfast_73lines')]}">
                         <field name="payfast_merchant_id"/>
                         <field name="payfast_secret"/>
                         <field name="payfast_passphrase"/>
