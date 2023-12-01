@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "ap_statement_partner/home/bhavya/Server/v15/ap_statement_partner",
+    'name': "ap_statement_partner",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as

@@ -13,11 +13,17 @@ class AccountMove(models.Model):
         for move in self:
             list_date = []
             payments_widget_vals = {'title': _('Less Payment'), 'outstanding': False, 'content': []}
-            if move.move_type == 'out_invoice' and  move.state == 'posted' and move.is_invoice(include_receipts=True):
-                for data in move._get_reconciled_info_JSON_values():
-                    list_date.append(data.get('date'))
-                if list_date:
-                    move.latest_paymn_date = max(list_date)
+            if  move.state == 'posted' and move.is_invoice(include_receipts=True):
+                reconciled_info = move.invoice_payments_widget
+                if reconciled_info:
+                    for data in reconciled_info.get('content'):
+                        list_date.append(data.get('date'))
+                    if list_date:
+                        move.latest_paymn_date = max(list_date)
+                    else:
+                        move.latest_paymn_date = False
+                else:
+                    move.latest_paymn_date = False
             else:
                 move.latest_paymn_date = False
     

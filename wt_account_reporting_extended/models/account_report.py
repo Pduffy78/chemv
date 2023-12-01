@@ -21,10 +21,11 @@ class AccountReportExtended(models.AbstractModel):
 
     @api.model
     def _get_filter_account(self):
+       
         return self.env['res.users'].search([])
 
     @api.model
-    def _init_filter_account(self, options, previous_options=None):
+    def _init_options_account(self, options, previous_options=None):
         if self.filter_account is None:
             return
 
@@ -34,7 +35,7 @@ class AccountReportExtended(models.AbstractModel):
         else:
             journal_map = {}
         options['account'] = []
-
+        
         for op in self._get_filter_account():
             options['account'].append({
                 'id': op.id,
@@ -56,14 +57,12 @@ class AccountReportExtended(models.AbstractModel):
         return selected_account and [('move_id.invoice_user_id', 'in', [j['id'] for j in selected_account])] or []
 
     @api.model
-    def _get_options_domain(self, options):
-        res = super(AccountReportExtended, self)._get_options_domain(options)
+    def _get_options_domain(self, options,data_scope):
+        res = super(AccountReportExtended, self)._get_options_domain(options,data_scope)
         res += self._get_options_account_domain(options)
         return res
 
-class AccountChartOfAccountReport(models.AbstractModel):
-    _inherit = "account.coa.report"
-    filter_account = True
+
     
     
     

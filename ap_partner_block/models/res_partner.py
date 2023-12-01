@@ -7,11 +7,12 @@ class ResPartner(models.Model):
 	is_follow_up_new = fields.Boolean(string="Follow Up",compute="_compute_is_follow_up",inverse="_inverse_is_follow_up",store=True)
 	
 
-	@api.depends('followup_level')
+	@api.depends('followup_line_id')
 	def _compute_is_follow_up(self):
 		
 		for rec in self:
-			if rec.followup_level.name in ['Friendly Reminder Email','First reminder email','Second Reminder Email']:
+			
+			if rec.followup_line_id.name in ['Friendly Reminder Email','First reminder email','Second Reminder Email']:
 				rec.is_follow_up_new = True
 			else:
 				rec.is_follow_up_new = False

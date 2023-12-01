@@ -98,7 +98,7 @@
                         <field name="exhausted" invisible="1"/>
                     </group>
                     <group>
-                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                        <field name="company_id" options="{'no_create': True}"/>
                         <field name="prefill_counted_quantity" widget="radio" invisible="1"/>
                     </group>
                 </group>

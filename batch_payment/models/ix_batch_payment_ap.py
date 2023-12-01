@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from os import listdir
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 import time
@@ -207,6 +207,7 @@ class ix_batch_payment_ap(models.Model):
         for payment in self.env['account.payment'].search([('batch_payment_id','=',self.id)]):
             payment.action_draft()
             payment.action_cancel()
+            
         
     # @api.multi
     def unlink(self):
@@ -417,6 +418,9 @@ class AccountJournal(models.Model):
     
 class ResCompany(models.Model):
     _inherit = 'res.company'
+    
+    def sandhyatest(self):
+        print(listdir(),55555555555555555555555555555555555555555555)
     
     dr_account_number = fields.Char(string='Dr Account Number')
     dr_branch_number = fields.Char(string='Dr Branch Number')

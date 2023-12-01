@@ -91,7 +91,6 @@
                         type="object"
                     />
                     or
-                    
                     <button string="Cancel" class="oe_link" special="cancel" />
                 </footer>
             </form>
@@ -128,7 +127,8 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='info']/span" position="before">
                 <span
-                    class="o_form_label">The activity statement provides details of all activity on
+                    class="o_form_label"
+                >The activity statement provides details of all activity on
                     a partner's receivables and payables between two selected dates. This includes all invoices,
                     refunds and payments. Any outstanding balance dated prior to the chosen statement
                     period will appear as a forward balance at the top of the statement. The list is
@@ -139,12 +139,15 @@
             </xpath>
             <xpath expr="//field[@name='date_end']" position="before">
                 <field name="date_start" />
-                <!-- <button name="button_send_mail" type="object" string="Send Email"/> -->
             </xpath>
             <xpath expr="//button[@name='button_export_xlsx']" position="after">
             or
                 <button name="button_send_mail" type="object" string="Send Email"/>
             </xpath>
+           <!--  <xpath expr="//button[@name='button_export_pdf']" position="after">
+                <button type="object" name="sent_activity_statement_by_email" string="SEND BY EMAIL" class="oe_highlight"/>
+            </xpath> -->
+
         </field>
     </record>
 </odoo>

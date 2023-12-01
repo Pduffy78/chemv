@@ -2,8 +2,12 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from dateutil.relativedelta import relativedelta
+from datetime import date, datetime
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
+import logging
 import base64
 from odoo import api, fields, models
+_logger = logging.getLogger(__name__)
 
 
 class ActivityStatementWizard(models.TransientModel):
@@ -55,7 +59,14 @@ class ActivityStatementWizard(models.TransientModel):
         """Default export is PDF."""
         return self._print_report(report_type)
 
+    def open_activity_statement_wizard(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("partner_statement.action_partner_activity_statement")
+        action['context'] = {
+            'active_ids': (self._context.get('active_ids'))
+        }
+        return action
 
+    
     def button_send_mail(self):
         mail_temp_obj = self.env['mail.template']
         Mail = self.env['mail.mail']
@@ -74,7 +85,8 @@ class ActivityStatementWizard(models.TransientModel):
                 report_service = template.report_name
 
                 if report.report_type in ['qweb-html', 'qweb-pdf']:
-                    result, format = report._render_qweb_pdf([partner.id],data=data)
+                    print("\n\n\nreport,========",report,partner,)
+                    result, format = report._render_qweb_pdf('partner_statement.activity_statement',[partner.id],data=data)
                 else:
                     res = report._render([res_id])
                     if not res:
@@ -139,10 +151,3 @@ class ActivityStatementWizard(models.TransientModel):
                 report = False
                 result = False
                 attachment_ids = False
-                
-                
-                
-                
-                
-                
-                

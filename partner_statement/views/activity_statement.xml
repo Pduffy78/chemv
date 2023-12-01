@@ -183,25 +183,21 @@
         <field name="report_type">xlsx</field>
         <field name="report_file">report_activity_statement</field>
     </record>
-    
-    
-	
-	<record id="email_template_activity_statement_ap" model="mail.template">
-			<field name="name">Activity Satement</field>
-			<field name="email_from">odoo@chemvulc.co.za</field>
-			<field name="subject">Please find your activity statement attached</field>
-			<field name="model_id" ref="base.model_res_partner" />
-			<field name="auto_delete" eval="True" />
-			<field name="body_html" type="html">
-				<p>Dear <t t-out="object.name or ''"></t> ,<br/><br/>
-				We apologise for taking so long to get our statements out to you.We have moved to a new system and are working on getting it set up for our needs.<br/><br/>
-				Please find attached statement for this month.Please note all September invoices are due at the end of this month.
-			 	You may have already seen an email from us with all your open invoices attached.
-			  	Please feel free to contact us with your queries, we will be happy to assist you.<br/><br/>
-			  	Please also feel free to request invoices from our previous system, should you need a copy. 
-			  	Our Branch Admins are also available to assist with any queries.<br/><br/>Thank you for your patience!</p>
-			</field>
-		</record>
-		
-		
+
+    <record id="email_template_activity_statement_ap" model="mail.template">
+            <field name="name">Activity Satement</field>
+            <field name="email_from">odoo@chemvulc.co.za</field>
+            <field name="subject">Please find your activity statement attached</field>
+            <field name="model_id" ref="base.model_res_partner" />
+            <field name="auto_delete" eval="True" />
+            <field name="body_html" type="html">
+                <p>Dear <t t-out="object.name or ''"></t> ,<br/><br/>
+                We apologise for taking so long to get our statements out to you.We have moved to a new system and are working on getting it set up for our needs.<br/><br/>
+                Please find attached statement for this month.Please note all September invoices are due at the end of this month.
+                You may have already seen an email from us with all your open invoices attached.
+                Please feel free to contact us with your queries, we will be happy to assist you.<br/><br/>
+                Please also feel free to request invoices from our previous system, should you need a copy. 
+                Our Branch Admins are also available to assist with any queries.<br/><br/>Thank you for your patience!</p>
+            </field>
+        </record>
 </odoo>
