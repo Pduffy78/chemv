@@ -1,9 +1,9 @@
 # Copyright 2018 ForgeFlow, S.L. (http://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
-from dateutil.relativedelta import relativedelta
+from odoo import models
 import base64
-from odoo import api, fields, models
+
 
 class OutstandingStatementWizard(models.TransientModel):
     """Outstanding Statement wizard."""
@@ -51,7 +51,7 @@ class OutstandingStatementWizard(models.TransientModel):
                 report_service = template.report_name
 
                 if report.report_type in ['qweb-html', 'qweb-pdf']:
-                    result, format = report._render_qweb_pdf([partner.id],data=data)
+                    result, format = report._render_qweb_pdf('partner_statement.outstanding_statement',[partner.id],data=data)
                 else:
                     res = report._render([res_id])
                     if not res:

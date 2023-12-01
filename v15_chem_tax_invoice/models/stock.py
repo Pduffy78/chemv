@@ -10,8 +10,8 @@ from odoo.tools.float_utils import float_compare, float_is_zero
 
 class StockQuant(models.Model):
     _inherit = 'stock.quant'
-    
-    
+
+
     @api.model
     def action_view_inventory(self):
         """ Similar to _get_quants_action except specific for inventory adjustments (i.e. inventory counts). """

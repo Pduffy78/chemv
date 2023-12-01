@@ -32,7 +32,7 @@ class SaleOrder(models.Model):
                 order.show_partner_credit_warning = account_credit_limit and \
                                                     ((company_limit and partner_credit > company_limit) or \
                                                     (partner_limit and partner_credit > partner_limit))
-                                                          
+
     def action_confirm(self):
         result = super(SaleOrder, self).action_confirm()
         for so in self:

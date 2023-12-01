@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+		<record model="ir.ui.view" id="tyre_tree_view_ap">
+        <field name="name">Tyre Detail</field>
+        <field name="model">tyre.details</field>
+        <field name="arch" type="xml">
+          <tree string="Tyre Detail">
+          	<field name="name"/>
+          	<field name="user_id"/>
+          	<field name="company_id"/>
+          </tree>
+        </field>
+      </record>
+      
+		<record model="ir.ui.view" id="tyre_form_view_ap">
+            <field name="name">Tyre Detail</field>
+            <field name="model">tyre.details</field>
+            <field name="arch" type="xml">
+                <form>
+                  <header>
+                  	<button name="create_job_card" type="object" string="Create Job Card"  />
+                  </header>
+				  <sheet string="Tyre Details">
+				  	<div class="oe_button_box" name="button_box">
+                        
+                        <button name="action_view_jobcard" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('job_card_count', '=', 0)]}">
+                            <field name="job_card_count" widget="statinfo" string="Job Cards"/>
+                        </button>
+                    </div>
+				  
+				  
+				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+				    <field name="active" invisible="1"/>
+				    <div class="oe_title">
+				                <h1>
+				                    <field name="name" required="1" placeholder="Name..."/>
+				                </h1>
+				            </div>
+				    <group name="studio_group_e8f1f3">
+				      <group name="studio_group_e8f1f3_left">
+				        <field name="date"/>
+				      </group>
+				      <group name="studio_group_e8f1f3_right">
+				        <field name="user_id" widget="many2one_avatar_user"/>
+				        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+				      </group>
+				    </group>
+				    <group>
+				      <field name="notes" placeholder="Type down your notes here..." nolabel="1"/>
+				    </group>
+				  </sheet>
+				  <div class="oe_chatter" name="oe_chatter">
+				    <field name="message_follower_ids"/>
+				    <field name="message_ids"/>
+				    <field name="activity_ids"/>
+				  </div>
+				</form>
+            </field>
+        </record>
+        
+        <record id="tyre_form_view_ap_inherited" model="ir.ui.view">
+            <field name="name">Tyre Detail</field>
+            <field name="model">tyre.details</field>
+            <field name="inherit_id" ref="otr_job.tyre_form_view_ap"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="attributes">
+			    <attribute name="placeholder">Serial Number</attribute>
+			    <attribute name="string">Serial Number</attribute>
+			  </xpath>
+			  <xpath expr="//group[@name='studio_group_e8f1f3_left']" position="attributes">
+			    <attribute name="string">Tyre Info</attribute>
+			  </xpath>
+			  <xpath expr="//group[@name='studio_group_e8f1f3_left']" position="inside">
+			    <field name="make" string="Tyre Make:" attrs="{}" required="1"/>
+			    <field name="size" string="Tyre Size:" attrs="{}" required="1"/>
+			    <field name="rating" string="Tyre Rating:" attrs="{}" required="1"/>
+			  </xpath>
+			  <xpath expr="//field[@name='company_id']" position="after">
+			    <xpath expr="//field[@name='date']" position="move"/>
+			  </xpath>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="action_tyre_details">
+		<field name="name">Tyre Detail</field>
+		<field name="res_model">tyre.details</field>
+		<field name="view_mode">tree,form</field>
+		<field name="view_id" ref="tyre_tree_view_ap"/>
+		</record>
+    
+  		 <menuitem id="tyre_detail_main_menu"
+            name="OTR Jobs"
+            web_icon = "fa fa-rocket,#FFFFFF,#636DA9"
+            sequence="5"/>
+    
+    	<menuitem id="tyre_detail_submenu" name="Tyre Details"
+		parent="tyre_detail_main_menu"/>
+		
+        <menuitem action="action_tyre_details" id="tyre_menu111" parent="tyre_detail_submenu" sequence="4"/>
+    
+</odoo>

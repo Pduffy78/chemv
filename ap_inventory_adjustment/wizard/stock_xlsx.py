@@ -35,10 +35,10 @@ class import_inventory_adjustment(models.TransientModel):
             prod_str = prod_str and prod_str.split('[')
             prod_str = prod_str and len(prod_str) > 1 and prod_str[1] or ''
             prod_str = prod_str and len(prod_str) > 1 and prod_str.split(']')[0] or ''
-            print(prod_str)
+            print(rowx)
             product = product_obj.search([('default_code', '=', prod_str)], limit = 1)
             lot = row[3].value
-            # uom = uom_obj.search([('name', '=', row[5].value)])
+            # uom = uom_obj.search([('name', '=', str(row[5].value))])
             inv_qnt = row[6].value
             # if product and product.tracking != 'none':
             #     raise ValidationError('The product with tracking not allowed to import: ' + str(product.name))

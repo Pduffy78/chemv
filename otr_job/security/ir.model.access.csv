@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tyre_details,user.tyre.details,model_tyre_details,,1,1,1,1
+access_job_cards_studio,user.job.cards.studio,model_job_cards_studio,,1,1,1,1
+access_job_cards_studio_tag,user.job.cards.studio.tag,model_job_cards_studio_tag,,1,1,1,1
+access_job_cards_studio_stage,user.job.cards.studio.stage,model_job_cards_studio_stage,,1,1,1,1
+access_risk_assessments_studio,user.risk.assessments.studio,model_risk_assessments_studio,,1,1,1,1
+access_assessments_line_studio,user.assessments.line.studio,model_assessments_line_studio,,1,1,1,1
+access_risk_assessments_studio_tag,user.risk.assessments.studio.tag,model_risk_assessments_studio_tag,,1,1,1,1

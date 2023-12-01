@@ -12,8 +12,6 @@ class ReportStatementCommon(models.AbstractModel):
 
     _name = "statement.common"
     _description = "Statement Reports Common"
-    
-
 
     def _get_invoice_address(self, part):
         inv_addr_id = part.address_get(["invoice"]).get("invoice", part.id)
@@ -56,7 +54,7 @@ class ReportStatementCommon(models.AbstractModel):
             FROM account_move_line l
             JOIN account_move m ON (l.move_id = m.id)
             JOIN account_account aa ON (aa.id = l.account_id)
-            JOIN account_account_type at ON (at.id = aa.user_type_id)
+            -- JOIN account_account_type at ON (at.id = aa.user_type_id)
             LEFT JOIN (SELECT pr.*
                 FROM account_partial_reconcile pr
                 INNER JOIN account_move_line l2
@@ -69,7 +67,7 @@ class ReportStatementCommon(models.AbstractModel):
                 ON pr.debit_move_id = l2.id
                 WHERE l2.date <= %(date_end)s
             ) as pc ON pc.credit_move_id = l.id
-            WHERE l.partner_parent_id IN %(partners)s AND at.type = %(account_type)s
+            WHERE l.partner_parent_id IN %(partners)s AND aa.account_type = %(account_type)s
                                 AND (
                                   (pd.id IS NOT NULL AND
                                       pd.max_date <= %(date_end)s) OR

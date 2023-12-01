@@ -3,7 +3,7 @@
 
 from collections import defaultdict
 
-from odoo import api, fields, models, _
+from odoo import api, models,fields
 
 
 class ActivityStatement(models.AbstractModel):
@@ -28,10 +28,10 @@ class ActivityStatement(models.AbstractModel):
             END) as credit
             FROM account_move_line l
             JOIN account_account aa ON (aa.id = l.account_id)
-            JOIN account_account_type at ON (at.id = aa.user_type_id)
+            -- JOIN account_account_type at ON (at.id = aa.account_type)
             JOIN account_move m ON (l.move_id = m.id)
             WHERE l.partner_parent_id IN %(partners)s
-                AND at.type = %(account_type)s
+                AND aa.account_type = %(account_type)s
                 AND l.date < %(date_start)s AND not l.blocked
                 AND m.state IN ('posted')
             GROUP BY l.partner_parent_id, l.currency_id, l.company_id
@@ -108,11 +108,11 @@ class ActivityStatement(models.AbstractModel):
                 END as date_maturity
             FROM account_move_line l
             JOIN account_account aa ON (aa.id = l.account_id)
-            JOIN account_account_type at ON (at.id = aa.user_type_id)
+            -- JOIN account_account_type at ON (at.id = aa.account_type)
             JOIN account_move m ON (l.move_id = m.id)
             JOIN account_journal aj ON (l.journal_id = aj.id)
             WHERE l.partner_parent_id IN %(partners)s
-                AND at.type = %(account_type)s
+                AND aa.account_type = %(account_type)s
                 AND %(date_start)s <= l.date
                 AND l.date <= %(date_end)s
                 AND m.state IN ('posted')
@@ -182,6 +182,7 @@ class ActivityStatement(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        
         if not data:
             data = {}
         if "company_id" not in data:
@@ -190,9 +191,11 @@ class ActivityStatement(models.AbstractModel):
             )
             data.update(wiz.create({})._prepare_statement())
         data["amount_field"] = "amount"
+        
+        if self._context.get('website_id') and self._context.get('date_start') and self._context.get('date_end'):
+            data['date_start'] = self._context.get('date_start')
+            data['date_end'] = self._context.get('date_end')
         return super()._get_report_values(docids, data)
-
-
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -216,6 +219,7 @@ class AccountMove(models.Model):
             elif not partner.parent_id :
                data.partner_parent_id = partner
                 
+
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'

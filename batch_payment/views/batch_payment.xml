@@ -61,7 +61,7 @@
 			                    <field name="invoice_date" string="Bill Date"/>
 			                    <field name="number"/>
 			                    <field name="ref"/>
-			                    <field name="company_id" groups="base.group_multi_company" options="{'no_open': True}"/>
+			                    <field name="company_id"  options="{'no_open': True}"/>
 			                    <field name="invoice_date_due"/>
 			                    <field name="invoice_origin"/>
 			                    <field name="amount_total_signed" string="Total" sum="Total"/>
