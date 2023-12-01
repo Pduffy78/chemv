@@ -517,9 +517,9 @@ class ReportStatementCommon(models.AbstractModel):
             buckets = self._get_account_show_buckets(
                 company_id, partner_ids, date_end, account_type, aging_type
             )
-            if 1 == 1:
+            # if 1 == 1:
                 
-            # if self._name == 'report.partner_statement.outstanding_statement':
+            if self._name == 'report.partner_statement.outstanding_statement':
                 for partner_id in partner_ids:
                     current = 0.0
                     minus_30 = 0.0
