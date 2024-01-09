@@ -303,6 +303,7 @@ class ReportStatementCommon(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        print('calll>>>>>>>>>>>')
         # flake8: noqa: C901
         """
         @return: returns a dict of parameters to pass to qweb report.
@@ -381,18 +382,19 @@ class ReportStatementCommon(models.AbstractModel):
                     minus_90 = 0.0
                     minus_120 = 0.0
                     over_minus_120 = 0.0
+                    print('>>>>>>>>>>>>>>',ap_current_date,ap_minus_30,ap_minus_60,ap_minus_90,ap_minus_120)
                     for patch_bucket in lines.get(partner_id):
                         # for item_pb in patch_bucket:
                         if patch_bucket.get('date'):
                             if patch_bucket.get('date') >= ap_current_date:
                                 current = current + patch_bucket.get('open_amount')
-                            elif ap_current_date >= patch_bucket.get('date') > ap_minus_30:
+                            elif ap_current_date > patch_bucket.get('date') >= ap_minus_30:
                                 minus_30 = minus_30 + patch_bucket.get('open_amount')
-                            elif ap_minus_30 >= patch_bucket.get('date') > ap_minus_60:
+                            elif ap_minus_30 > patch_bucket.get('date') >= ap_minus_60:
                                 minus_60 = minus_60 + patch_bucket.get('open_amount')
-                            elif ap_minus_60 >= patch_bucket.get('date') > ap_minus_90:
+                            elif ap_minus_60 > patch_bucket.get('date') >= ap_minus_90:
                                 minus_90 = minus_90 + patch_bucket.get('open_amount')
-                            elif ap_minus_90 >= patch_bucket.get('date') > ap_minus_120:
+                            elif ap_minus_90 > patch_bucket.get('date') >= ap_minus_120:
                                 minus_120 = minus_120 + patch_bucket.get('open_amount')
                             else:
                                 over_minus_120 = over_minus_120 + patch_bucket.get('open_amount')
