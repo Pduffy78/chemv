@@ -386,13 +386,13 @@ class ReportStatementCommon(models.AbstractModel):
                         if patch_bucket.get('date'):
                             if patch_bucket.get('date') >= ap_current_date:
                                 current = current + patch_bucket.get('open_amount')
-                            elif ap_current_date >= patch_bucket.get('date') > ap_minus_30:
+                            elif ap_current_date > patch_bucket.get('date') >= ap_minus_30:
                                 minus_30 = minus_30 + patch_bucket.get('open_amount')
-                            elif ap_minus_30 >= patch_bucket.get('date') > ap_minus_60:
+                            elif ap_minus_30 > patch_bucket.get('date') >= ap_minus_60:
                                 minus_60 = minus_60 + patch_bucket.get('open_amount')
-                            elif ap_minus_60 >= patch_bucket.get('date') > ap_minus_90:
+                            elif ap_minus_60 > patch_bucket.get('date') >= ap_minus_90:
                                 minus_90 = minus_90 + patch_bucket.get('open_amount')
-                            elif ap_minus_90 >= patch_bucket.get('date') > ap_minus_120:
+                            elif ap_minus_90 > patch_bucket.get('date') >= ap_minus_120:
                                 minus_120 = minus_120 + patch_bucket.get('open_amount')
                             else:
                                 over_minus_120 = over_minus_120 + patch_bucket.get('open_amount')
