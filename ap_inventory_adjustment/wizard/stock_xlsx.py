@@ -9,6 +9,8 @@ try:
         xlsx = None
 except ImportError:
     xlrd = xlsx = None
+import logging
+_logger = logging.getLogger(__name__)
     
 class import_inventory_adjustment(models.TransientModel):
     _name = 'import.inventory.adjustment'
@@ -30,6 +32,7 @@ class import_inventory_adjustment(models.TransientModel):
         quant_obj = self.env["stock.quant"]
         # emulate Sheet.get_rows for pre-0.9.4
         for rowx, row in enumerate(map(sheet.row, range(sheet.nrows)), 1):
+            _logger.info('rowx,row' + str(row) + '....' + str(rowx))
             location = location_obj.search([('complete_name', '=', row[0].value)], limit = 1)
             prod_str = row[1] and row[1].value or ''
             prod_str = prod_str and prod_str.split('[')
