@@ -46,3 +46,19 @@ class Picking(models.Model):
             'domain': [('origin', '=', self.name)],
             # 'context': "{'create': False}"
         }
+
+
+
+
+class product_pricelist_item(models.Model):
+    _inherit = "product.pricelist.item"
+    
+    
+    _rec_name = 'product_code'
+    
+    product_code = fields.Char(compute = 'set_product_code', string="Product Code", store = True)
+    
+    @api.depends('product_tmpl_id')
+    def set_product_code(self):
+        for record in self:
+            record.product_code = record.product_tmpl_id.default_code

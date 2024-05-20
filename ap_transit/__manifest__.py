@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name" : "Ap Transit",
-    "version" : "14.00",
+    "version" : "14.01",
     "summary": "Ap Transit",
     "sequence": 1,
     "description": """ Ap Transit """,
