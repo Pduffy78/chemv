@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'AP Email Import',
+    'name': 'AP Email Imports',
     'category': 'Email',
     'version': '15.0',
     'depends': ['base','mass_mailing','mass_mailing_extended'],
