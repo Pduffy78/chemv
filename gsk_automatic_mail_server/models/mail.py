@@ -8,7 +8,7 @@ class MailMail(models.Model):
     @api.model
     def create(self, vals):
         vals.update({'email_from':'info@highprecisionair.co.za','reply_to':'info@highprecisionair.co.za'})
-        return super(override_mail, self).create(vals)
+        return super(MailMail, self).create(vals)
 
     def send(self, auto_commit=False, raise_exception=False):
         for mail in self:
