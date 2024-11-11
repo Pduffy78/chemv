@@ -6,8 +6,8 @@ from odoo import models, fields, api
 class AccountMOveInherit(models.Model):
     _inherit = "account.move"
 
-    margin = fields.Monetary("Margin", compute='_compute_margin', store=True)
-    margin_percent = fields.Float("Margin (%)", compute='_compute_margin', store=True, group_operator="avg")
+    margin = fields.Monetary("Margin", compute='_compute_margin', store=False)
+    margin_percent = fields.Float("Margin (%)", compute='_compute_margin', store=False, group_operator="avg")
 
     @api.depends('line_ids.margin', 'amount_untaxed')
     def _compute_margin(self):
@@ -34,13 +34,13 @@ class ap_invoice_margin(models.Model):
 
     margin = fields.Float(
         "Margin", compute='_compute_margin',
-        digits='Product Price', store=True, precompute=True)
+        digits='Product Price', store=False, precompute=True)
     margin_percent = fields.Float(
-        "Margin (%)", compute='_compute_margin', store=True, precompute=True)
+        "Margin (%)", compute='_compute_margin', store=False, precompute=True)
 
     purchase_price = fields.Float(
         string="Cost", compute="_compute_purchase_price",
-        digits='Product Price', store=True, readonly=False, copy=False, precompute=True)
+        digits='Product Price', store=False, readonly=False, copy=False, precompute=True)
 
     @api.depends('product_id', 'company_id', 'currency_id', 'product_uom_id')
     def _compute_purchase_price(self):
