@@ -37,7 +37,7 @@ class AccountMOveInherit(models.Model):
         # if not all(self._ids):
         for order in self:
             order.margin = sum(order.invoice_line_ids.mapped('margin'))
-            order.margin_percent = order.amount_untaxed and order.margin/order.amount_untaxed
+            order.margin_percent = order.amount_untaxed and order.amount_untaxed - (order.margin/order.amount_untaxed) * 100
         # else:
         #     # On batch records recomputation (e.g. at install), compute the margins
         #     # with a single read_group query for better performance.
