@@ -32,11 +32,11 @@ class AccountMOveInherit(models.Model):
                 ids.append(move.id)
         return [("id", "in", ids)]
 
-    # @api.depends('line_ids.margin', 'amount_untaxed')
+    @api.depends('line_ids.margin', 'amount_untaxed')
     def _compute_margin(self):
         # if not all(self._ids):
         for order in self:
-            order.margin = sum(order.line_ids.mapped('margin'))
+            order.margin = sum(order.invoice_line_ids.mapped('margin'))
             order.margin_percent = order.amount_untaxed and order.margin/order.amount_untaxed
         # else:
         #     # On batch records recomputation (e.g. at install), compute the margins
