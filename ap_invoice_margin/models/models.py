@@ -1,46 +1,89 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.addons.stock.models.product import OPERATORS
 
 
 class AccountMOveInherit(models.Model):
     _inherit = "account.move"
 
-    margin = fields.Monetary("Margin", compute='_compute_margin', store=False)
-    margin_percent = fields.Float("Margin (%)", compute='_compute_margin', store=False, group_operator="avg")
+    margin = fields.Monetary("Margin", compute='_compute_margin', store=False, search='_search_margin')
+    margin_percent = fields.Float("Margin (%)", compute='_compute_margin', store=False, group_operator="avg", search='_search_margin_percentage')
+    
+    
+    
+    def _search_margin(self, operator, value):
+        if operator not in ['=', '!=', '>', '<', '>=', '<=']:  # Ensure the operator is valid
+            raise ValueError("Unsupported operator for margin search")
+
+        ids = []
+        for move in self.search([]):
+            if OPERATORS[operator](move.margin, value):
+                ids.append(move.id)
+        return [("id", "in", ids)]
+    
+    def _search_margin_percentage(self, operator, value):
+        if operator not in ['=', '!=', '>', '<', '>=', '<=']:  # Ensure the operator is valid
+            raise ValueError("Unsupported operator for margin search")
+
+        ids = []
+        for move in self.search([]):
+            if OPERATORS[operator](move.margin, value):
+                ids.append(move.id)
+        return [("id", "in", ids)]
 
     @api.depends('line_ids.margin', 'amount_untaxed')
     def _compute_margin(self):
-        if not all(self._ids):
-            for order in self:
-                order.margin = sum(order.line_ids.mapped('margin'))
-                order.margin_percent = order.amount_untaxed and order.margin/order.amount_untaxed
-        else:
-            # On batch records recomputation (e.g. at install), compute the margins
-            # with a single read_group query for better performance.
-            # This isn't done in an onchange environment because (part of) the data
-            # may not be stored in database (new records or unsaved modifications).
-            grouped_order_lines_data = self.env['account.move.line'].read_group(
-                [
-                    ('move_id', 'in', self.ids),
-                ], ['margin', 'move_id'], ['move_id'])
-            mapped_data = {m['move_id'][0]: m['margin'] for m in grouped_order_lines_data}
-            for order in self:
-                order.margin = mapped_data.get(order.id, 0.0)
-                order.margin_percent = order.amount_untaxed and order.margin/order.amount_untaxed
+        # if not all(self._ids):
+        for order in self:
+            order.margin = sum(order.line_ids.mapped('margin'))
+            order.margin_percent = order.amount_untaxed and order.margin/order.amount_untaxed
+        # else:
+        #     # On batch records recomputation (e.g. at install), compute the margins
+        #     # with a single read_group query for better performance.
+        #     # This isn't done in an onchange environment because (part of) the data
+        #     # may not be stored in database (new records or unsaved modifications).
+        #     grouped_order_lines_data = self.env['account.move.line'].read_group(
+        #         [
+        #             ('move_id', 'in', self.ids),
+        #         ], ['margin', 'move_id'], ['move_id'])
+        #     mapped_data = {m['move_id'][0]: m['margin'] for m in grouped_order_lines_data}
+        #     for order in self:
+        #         order.margin = mapped_data.get(order.id, 0.0)
+        #         order.margin_percent = order.amount_untaxed and order.margin/order.amount_untaxed
 
 class ap_invoice_margin(models.Model):
     _inherit = 'account.move.line'
 
     margin = fields.Float(
-        "Margin", compute='_compute_margin',
+        "Margin", compute='_compute_margin', search='_search_margin',
         digits='Product Price', store=False, precompute=True)
     margin_percent = fields.Float(
-        "Margin (%)", compute='_compute_margin', store=False, precompute=True)
+        "Margin (%)", compute='_compute_margin', store=False, precompute=True, search='_search_margin_percentage')
 
     purchase_price = fields.Float(
         string="Cost", compute="_compute_purchase_price",
         digits='Product Price', store=False, readonly=False, copy=False, precompute=True)
+
+    def _search_margin(self, operator, value):
+        if operator not in ['=', '!=', '>', '<', '>=', '<=']:  # Ensure the operator is valid
+            raise ValueError("Unsupported operator for margin search")
+
+        ids = []
+        for move in self.search([]):
+            if OPERATORS[operator](move.margin, value):
+                ids.append(move.id)
+        return [("id", "in", ids)]
+    
+    def _search_margin_percentage(self, operator, value):
+        if operator not in ['=', '!=', '>', '<', '>=', '<=']:  # Ensure the operator is valid
+            raise ValueError("Unsupported operator for margin search")
+
+        ids = []
+        for move in self.search([]):
+            if OPERATORS[operator](move.margin, value):
+                ids.append(move.id)
+        return [("id", "in", ids)]
 
     @api.depends('product_id', 'company_id', 'currency_id', 'product_uom_id')
     def _compute_purchase_price(self):
