@@ -37,7 +37,7 @@ class AccountMOveInherit(models.Model):
         # if not all(self._ids):
         for order in self:
             order.margin = sum(order.invoice_line_ids.mapped('margin'))
-            order.margin_percent = order.amount_untaxed and order.amount_untaxed - (order.margin/order.amount_untaxed) * 100
+            order.margin_percent = order.amount_untaxed and (order.margin/order.amount_untaxed) * 100
         # else:
         #     # On batch records recomputation (e.g. at install), compute the margins
         #     # with a single read_group query for better performance.
@@ -99,7 +99,7 @@ class ap_invoice_margin(models.Model):
     def _compute_margin(self):
         for line in self:
             line.margin = line.price_subtotal - (line.purchase_price * line.quantity)
-            line.margin_percent = line.price_subtotal and line.margin/line.price_subtotal
+            line.margin_percent = line.price_subtotal and (line.margin/line.price_subtotal) * 100
 
     def _convert_price(self, product_cost, from_uom):
         self.ensure_one()
