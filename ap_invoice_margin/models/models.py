@@ -32,7 +32,7 @@ class AccountMOveInherit(models.Model):
                 ids.append(move.id)
         return [("id", "in", ids)]
 
-    @api.depends('line_ids.margin', 'amount_untaxed')
+    # @api.depends('line_ids.margin', 'amount_untaxed')
     def _compute_margin(self):
         # if not all(self._ids):
         for order in self:
