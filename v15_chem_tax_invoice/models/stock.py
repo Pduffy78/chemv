@@ -16,17 +16,19 @@ class StockQuant(models.Model):
     def action_view_inventory(self):
         """ Similar to _get_quants_action except specific for inventory adjustments (i.e. inventory counts). """
         self = self._set_view_context()
-        self._quant_tasks()
+        if not self.env['ir.config_parameter'].sudo().get_param('stock.skip_quant_tasks'):
+            self._quant_tasks()
 
         ctx = dict(self.env.context or {})
         ctx['no_at_date'] = True
-        if self.user_has_groups('stock.group_stock_user') and not self.user_has_groups('stock.group_stock_manager'):
+        if self.env.user.has_group('stock.group_stock_user') and not self.env.user.has_group('stock.group_stock_manager'):
             ctx['search_default_my_count'] = True
+        view_id_list = self.env.ref('stock.view_stock_quant_tree_inventory_editable').id
+        view_id_form = self.env.ref('stock.view_stock_quant_form_editable').id
         action = {
             'name': _('Inventory Adjustments'),
-            'view_mode': 'tree,form',
-            'views': [(self.env.ref('stock.view_stock_quant_tree_inventory_editable').id,'tree'),
-                        (self.env.ref('stock.view_stock_quant_form_editable').id, 'form')],
+            'view_mode': 'list,form',
+            'views':[(view_id_list, 'list'),(view_id_form,'form')],
             'res_model': 'stock.quant',
             'type': 'ir.actions.act_window',
             'context': ctx,

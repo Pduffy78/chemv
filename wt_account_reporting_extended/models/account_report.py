@@ -8,7 +8,6 @@ from dateutil.relativedelta import relativedelta
 from odoo import models, fields, api, _
 from odoo.tools import config, date_utils, get_lang
 from odoo.tools.misc import formatLang, format_date
-from odoo.addons.web.controllers.main import clean_action
 from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)

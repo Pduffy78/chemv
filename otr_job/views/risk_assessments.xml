@@ -4,13 +4,13 @@
         <field name="name">Risk Assessments</field>
         <field name="model">risk.assessments.studio</field>
         <field name="arch" type="xml">
-          <tree string="Risk Assessments">
+          <list string="Risk Assessments">
           	 <field name="sequence" widget="handle"/>
 			  <field name="name"/>
 			  <field name="user_id" widget="many2one_avatar_user"/>
 			  <field name="company_id" groups="base.group_multi_company"/>
-			  <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'x_color'}"/>
-          </tree>
+			  <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+          </list>
         </field>
       </record>
       
@@ -21,7 +21,7 @@
                 <form>
 				  <header/>
 				  <sheet string="Risk Assessments">
-				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" invisible="active == True"/>
 				    <field name="active" invisible="1"/>
 				    <div class="oe_title">
 				                <h1>
@@ -34,7 +34,7 @@
 				      </group>
 				      <group name="studio_group_9e1b7a_right">
 				        <field name="user_id" widget="many2one_avatar_user"/>
-				        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'x_color'}"/>
+				        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
 				        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
 				      </group>
 				    </group>
@@ -47,11 +47,13 @@
 				      </page>
 				    </notebook>
 				  </sheet>
+				  <chatter>
 				  <div class="oe_chatter" name="oe_chatter">
 				    <field name="message_follower_ids"/>
 				    <field name="message_ids"/>
 				    <field name="activity_ids"/>
 				  </div>
+				</chatter>
 				</form>
             </field>
         </record>
@@ -59,7 +61,7 @@
   		 <record model="ir.actions.act_window" id="action_risk_assessments">
 		<field name="name">Risk Assessments</field>
 		<field name="res_model">risk.assessments.studio</field>
-		<field name="view_mode">tree,form</field>
+		<field name="view_mode">list,form</field>
 		<field name="view_id" ref="risk_assessments_tree_view_ap"/>
 		</record>
     

@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name" : "Ap Partner Block",
-    "version" : "15.01",
+    "version" : "18.01",
     "summary": "Ap Partner Block",
     "sequence": 1,
     "description": """ Ap Partner Block """,
@@ -11,7 +11,8 @@
     "depends" : ["base",
                  "stock",
                  "purchase",
-                 "sale"
+                 "sale",
+                 'account_followup'
                  ],
     "data": [
             "views/res_partner.xml",

@@ -14,6 +14,7 @@ class SaleOrder(models.Model):
     @api.depends('partner_credit_limit', 'partner_credit', 'order_line',
                  'partner_id.account_default_credit_limit', 'partner_id.account_credit_limit')
     def _compute_show_partner_credit_warning(self):
+        print("SALE CREDIT WARNING--------------------")
         for order in self:
             if order.partner_id.parent_id:
                 account_credit_limit = order.partner_id.parent_id.account_credit_limit
@@ -23,6 +24,7 @@ class SaleOrder(models.Model):
                 order.show_partner_credit_warning = account_credit_limit and \
                                                     ((company_limit and partner_credit > company_limit) or \
                                                     (partner_limit and partner_credit > partner_limit))
+                print("warning =", order.show_partner_credit_warning)
             else:
 
                 account_credit_limit = order.partner_id.account_credit_limit
@@ -32,9 +34,11 @@ class SaleOrder(models.Model):
                 order.show_partner_credit_warning = account_credit_limit and \
                                                     ((company_limit and partner_credit > company_limit) or \
                                                     (partner_limit and partner_credit > partner_limit))
+                print("warning==",order.show_partner_credit_warning)
 
     def action_confirm(self):
         result = super(SaleOrder, self).action_confirm()
+        print("SALE CONF RESULT", result)
         for so in self:
             if so.show_partner_credit_warning and so.credit_limit_type == 'block' and \
                     so.partner_credit + so.amount_total > so.partner_credit_limit:

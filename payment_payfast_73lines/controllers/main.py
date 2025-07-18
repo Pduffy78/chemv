@@ -1,7 +1,3 @@
-# Part of Odoo Module Developed by 73lines
-# See LICENSE file for full copyright and licensing details.
-
-""" File to manage the functions used while redirection"""
 import logging
 import pprint
 import werkzeug

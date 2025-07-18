@@ -29,6 +29,7 @@ class wizard_import_ap(models.TransientModel):
 
     def duplicate_accounts(self):
         account_obj = self.env['account.account']
+        print("account_obj",account_obj)
         for account in account_obj.search([('company_id', '=', self.env.user.company_id.id)]):
             print('________',self.env.user.company_id.name)
             for company in self.env['res.company'].search([('id', '!=', self.env.user.company_id.id)]):
@@ -57,11 +58,23 @@ class wizard_import_ap(models.TransientModel):
                 if i >= 1:
                     print(i)
                     company = self.ap_company_id or company_obj.search([('name', '=', field[4])], limit = 1)
-                    date = datetime.strptime(field[6], '%d/%m/%Y')
+                    # date = datetime.strptime(field[6], '%d/%m/%Y')
+                    # date = datetime.strptime(field[6], '%d/%m/%y')
+                    try:
+                        invoice_date_str = field[6].strip()
+                        try:
+                            date = datetime.strptime(invoice_date_str, '%d/%m/%Y')
+                        except ValueError:
+                            date = datetime.strptime(invoice_date_str, '%d/%m/%y')
+                    except (IndexError, ValueError):
+                        raise UserError(f"Row {i+1}: Invalid or missing Invoice Date: {field}")
+
+
                     partner = partner_obj.sudo().with_company(company).search([('name', '=', field[5]), '|', ('company_id','=',company.id), ('company_id', '=', False)], limit = 1)
-                    account = account_obj.sudo().with_company(company).search([('company_id', '=', company.id), ('code', '=', '500010')], limit = 1)
+                    account = account_obj.sudo().with_company(company).search([('company_ids', '=', company.id), ('code', '=', '500010')], limit = 1)
                     currency = currency_obj.sudo().with_company(company).search([('symbol','=',field[7])],limit=1)
                     price_unit = field[12]
+                    print("price_unit",price_unit)
                     
                     price_unit = price_unit.replace(',', '')
                     price_unit = price_unit.replace(" ",'')
@@ -86,6 +99,7 @@ class wizard_import_ap(models.TransientModel):
                                 'currency_id': company.currency_id.id,
                             
                             }
+                        print("inv_line_vals",inv_line_vals)
                         
                        
                         
@@ -105,6 +119,7 @@ class wizard_import_ap(models.TransientModel):
                             'currency_id': company.currency_id.id,
                         })
                         inv.with_company(company).action_post()
+                        print("inv            ===========", inv)
                     else:
                         if not partner:
                             self.env['account.import.issue'].create({'issue':'customer not found', 'ap_company_id': company.id,'row_data':field})
@@ -188,6 +203,7 @@ class IssueDebtorImport(models.Model):
                                 'currency_id': company.currency_id.id,
                             
                             }
+                        print("inv_line_vals",inv_line_vals)
                         
                        
                         

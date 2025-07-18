@@ -15,10 +15,14 @@ class Currency(models.Model):
     @api.model
     def _get_conversion_rate(self, from_currency, to_currency, company, date):
         currency_rates = (from_currency + to_currency)._get_rates(company, date)
+        print("currency_rates",currency_rates)
         res = currency_rates.get(to_currency.id) / currency_rates.get(from_currency.id)
         print('_get_conversion_rate........',res,self._context)
         if self._context and self._context.get('active_model') and self._context.get('active_model') == 'sale.order' and self._context.get('active_id'):
+            print("11111111111")
             current_sale = self.env['sale.order'].browse([self._context.get('active_id')])
+            print("current sale=",current_sale)
             if current_sale and current_sale.exchange_rate:
                 res = 1 / current_sale.exchange_rate
+                print("res",res)
         return res

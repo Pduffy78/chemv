@@ -31,7 +31,6 @@ class Picking(models.Model):
                 "origin": self.name,
                 "move_line_ids_without_package": False,
                 "move_line_ids": False,
-                "move_line_nosuggest_ids": False 
             })
 
     def button_view_created_transfer(self):
@@ -40,14 +39,12 @@ class Picking(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Transfer',
             'view_type': 'form',
-            'view_mode': "tree,form",
+            'view_mode': "list,form",
             'view_id': False,
             'res_model': 'stock.picking',
             'domain': [('origin', '=', self.name)],
             # 'context': "{'create': False}"
         }
-
-
 
 
 class product_pricelist_item(models.Model):
@@ -62,3 +59,4 @@ class product_pricelist_item(models.Model):
     def set_product_code(self):
         for record in self:
             record.product_code = record.product_tmpl_id.default_code
+            

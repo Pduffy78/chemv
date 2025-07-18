@@ -23,7 +23,9 @@ class SendMessage(models.TransientModel):
     def onchange_template_id_wrapper(self):
         self.ensure_one()
         res_id = self._context.get('active_id') or 1
+        print("res_id",res_id)
         values = self.onchange_template_id(self.template_id.id, self.model, res_id)['value']
+        print("values22222222",values)
         for fname, value in values.items():
             setattr(self, fname, value)
 
@@ -39,6 +41,7 @@ class SendMessage(models.TransientModel):
         values = self._convert_to_write(values)
         return {'value': values}
 
+    
     def generate_email_for_composer(self, template_id, res_ids, fields=None):
         multi_mode = True
         if isinstance(res_ids, int):
@@ -46,15 +49,26 @@ class SendMessage(models.TransientModel):
             res_ids = [res_ids]
         if fields is None:
             fields = ['body_html']
+
         returned_fields = fields + ['partner_ids']
-        values = dict.fromkeys(res_ids, False)
-        template_values = self.env['mail.template'].with_context(tpl_partners_only=True).browse(template_id).generate_email(res_ids, fields=fields)
+        values = {}
+
+        template = self.env['mail.template'].browse(template_id)
+        print("temp;;;;",template)
+
         for res_id in res_ids:
-            res_id_values = dict((field, template_values[res_id][field]) for field in returned_fields if
-                                 template_values[res_id].get(field))
-            res_id_values['message'] = html2text.html2text(res_id_values.pop('body_html', ''))
-            values[res_id] = res_id_values
-        return multi_mode and values or values[res_ids[0]]
+            record = self.env[template.model].browse(res_id)
+            print("rec",record)
+            values[res_id] = {}
+
+            for field in fields:
+                values[res_id][field] = template._render_field(field, [res_id])[res_id]
+
+            values[res_id]['partner_ids'] = [record.partner_id.id] if record.partner_id else []
+            values[res_id]['message'] = html2text.html2text(values[res_id].get('body_html', ''))
+
+        return values if multi_mode else values[res_ids[0]]
+
 
     def send_custom_message(self):
         if self.message and self.mobile_number:

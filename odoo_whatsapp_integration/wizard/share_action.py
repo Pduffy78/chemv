@@ -29,6 +29,7 @@ class ShareAction(models.TransientModel):
         self.mobile_number = self.env[self._context.get('active_model')].browse(self.env.context.get('active_id')).partner_id.mobile
 
     def action_send_whatsapp(self):
+        print("send wp-----------------------")
         if self.note and self.mobile_number:
             if self.res_model == 'sale.order':
                 common_message = 'Access following Sale Order Document.'

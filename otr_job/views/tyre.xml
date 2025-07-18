@@ -4,11 +4,11 @@
         <field name="name">Tyre Detail</field>
         <field name="model">tyre.details</field>
         <field name="arch" type="xml">
-          <tree string="Tyre Detail">
+          <list string="Tyre Detail">
           	<field name="name"/>
           	<field name="user_id"/>
           	<field name="company_id"/>
-          </tree>
+          </list>
         </field>
       </record>
       
@@ -23,13 +23,13 @@
 				  <sheet string="Tyre Details">
 				  	<div class="oe_button_box" name="button_box">
                         
-                        <button name="action_view_jobcard" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('job_card_count', '=', 0)]}">
+                        <button name="action_view_jobcard" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="job_card_count == 0">
                             <field name="job_card_count" widget="statinfo" string="Job Cards"/>
                         </button>
                     </div>
 				  
 				  
-				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" invisible="active == True"/>
 				    <field name="active" invisible="1"/>
 				    <div class="oe_title">
 				                <h1>
@@ -49,11 +49,13 @@
 				      <field name="notes" placeholder="Type down your notes here..." nolabel="1"/>
 				    </group>
 				  </sheet>
+				  <chatter>
 				  <div class="oe_chatter" name="oe_chatter">
 				    <field name="message_follower_ids"/>
 				    <field name="message_ids"/>
 				    <field name="activity_ids"/>
 				  </div>
+				</chatter>
 				</form>
             </field>
         </record>
@@ -71,9 +73,9 @@
 			    <attribute name="string">Tyre Info</attribute>
 			  </xpath>
 			  <xpath expr="//group[@name='studio_group_e8f1f3_left']" position="inside">
-			    <field name="make" string="Tyre Make:" attrs="{}" required="1"/>
-			    <field name="size" string="Tyre Size:" attrs="{}" required="1"/>
-			    <field name="rating" string="Tyre Rating:" attrs="{}" required="1"/>
+			    <field name="make" string="Tyre Make:" required="1"/>
+			    <field name="size" string="Tyre Size:" required="1"/>
+			    <field name="rating" string="Tyre Rating:" required="1"/>
 			  </xpath>
 			  <xpath expr="//field[@name='company_id']" position="after">
 			    <xpath expr="//field[@name='date']" position="move"/>
@@ -84,7 +86,7 @@
         <record model="ir.actions.act_window" id="action_tyre_details">
 		<field name="name">Tyre Detail</field>
 		<field name="res_model">tyre.details</field>
-		<field name="view_mode">tree,form</field>
+		<field name="view_mode">list,form</field>
 		<field name="view_id" ref="tyre_tree_view_ap"/>
 		</record>
     

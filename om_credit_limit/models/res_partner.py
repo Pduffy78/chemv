@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+from odoo.tools import SQL, unique
 
 
 class ResPartner(models.Model):
@@ -23,75 +24,154 @@ class ResPartner(models.Model):
 
     @api.depends('credit_limit_type')
     def _compute_credit_limit_type(self):
+        print("credit limit type compute")
         self.compute_credit_limit_type = False
         for rec in self:
             if rec.parent_id:
                 rec.compute_credit_limit_type = rec.parent_id.credit_limit_type
+                print("cred limit type::::;",rec.compute_credit_limit_type)
             else:
                 rec.compute_credit_limit_type = rec.credit_limit_type
+                print("cred limit type------------", rec.compute_credit_limit_type)
 
     @api.depends('amount_credit_limit')
     @api.depends_context('company')
     def _compute_credit_limit_compute(self):
+        print("\n\n\n11111111111\n\n\n")
         for partner in self:
             if partner.parent_id:
-                partner.credit_limit_compute = partner.parent_id.account_default_credit_limit if partner.parent_id.amount_credit_limit == -1 else partner.parent_id.amount_credit_limit    
+                print("\n\n\nwhy not gone\n\n\n",partner.parent_id.account_default_credit_limit)
+                partner.credit_limit_compute = partner.parent_id.account_default_credit_limit if partner.parent_id.amount_credit_limit == -1 else partner.parent_id.amount_credit_limit 
+                print("PARTNER;;;;;;;;;;;",partner.credit_limit_compute)   
             else:
                 partner.credit_limit_compute = partner.account_default_credit_limit if partner.amount_credit_limit == -1 else partner.amount_credit_limit
+                print("PARTNER------", partner.credit_limit_compute)
 
     @api.depends('credit_limit_compute')
     @api.depends_context('company')
     def _inverse_credit_limit_compute(self):
+        print("\n\n\n2222222222222\n\n\n")
         for partner in self:
             if partner.parent_id:
                 is_default = partner.parent_id.credit_limit_compute == partner.parent_id.account_default_credit_limit
+                print("def;;;;;;;;;;;",is_default)
                 partner.amount_credit_limit = -1 if is_default else partner.parent_id.credit_limit_compute
+                print("AMOUNT CL;;;;;;",partner.amount_credit_limit)
             else:
                 is_default = partner.credit_limit_compute == partner.account_default_credit_limit
+                print("def-------",is_default)
                 partner.amount_credit_limit = -1 if is_default else partner.credit_limit_compute
+                print("AMOUNT CL========",partner.amount_credit_limit)
 
     @api.depends_context('company')
     def _compute_show_credit_limit(self):
+        print("\n3333333333333\n")
         for partner in self:
             if partner.parent_id:
                 partner.show_credit_limit = partner.parent_id.account_credit_limit
+                print("credit limit partner===",partner.show_credit_limit)
+
+
             else:
                 partner.show_credit_limit = partner.account_credit_limit
+                print("credit limit partner===",partner.show_credit_limit)
 
     def _commercial_fields(self):
+        print("\n\n\n44444444\n\n\n")
         return super(ResPartner, self)._commercial_fields() + ['amount_credit_limit']
 
+    # @api.depends_context('company')
+    # def _credit_debit_get(self):
+    #     tables, where_clause, where_params = self.env['account.move.line']._where_calc([
+    #         ('parent_state', '=', 'posted'),
+    #         ('company_id', '=', self.env.company.id)
+    #     ]).get_sql()
+    #     print("11111111", tables)
+    #     print("11111111", where_clause)
+    #     print("11111111", where_params)
+    #     where_params = [tuple(self.ids)] + where_params
+    #     if where_clause:
+    #         where_clause = 'AND ' + where_clause
+    #     recod = False
+    #     for record in self:
+    #         recod = record
+    #     if isinstance(recod.id, int):
+    #         self._cr.execute("""SELECT account_move_line.partner_id , a.account_type, SUM(account_move_line.amount_residual)
+    #                       FROM """ + tables + """
+    #                       LEFT JOIN account_account a ON (account_move_line.account_id=a.id)
+    #                       WHERE a.account_type IN ('asset_receivable','liability_payable')
+    #                       AND account_move_line.partner_id IN %s
+    #                       AND account_move_line.reconciled IS NOT TRUE
+    #                       """ + where_clause + """
+    #                       GROUP BY account_move_line.partner_id, a.account_type
+    #                       """, where_params)
+    #         treated = self.browse()
+    #         for pid, type, val in self._cr.fetchall():
+    #             partner = self.browse(pid)
+    #             if type == 'asset_receivable':
+    #                 partner.credit = val
+    #                 if partner not in treated:
+    #                     partner.debit = False
+    #                     treated |= partner
+    #             elif type == 'liability_payable':
+    #                 partner.debit = -val
+    #                 if partner not in treated:
+    #                     partner.credit = False
+    #                     treated |= partner
+    #         remaining = (self - treated)
+    #         remaining.debit = False
+    #         remaining.credit = False
+    #     else:
+    #         for rec in self:
+    #             rec.debit = False
+    #             rec.credit = False
+  
     @api.depends_context('company')
     def _credit_debit_get(self):
-        tables, where_clause, where_params = self.env['account.move.line']._where_calc([
+        
+        query = self.env['account.move.line']._where_calc([
             ('parent_state', '=', 'posted'),
-            ('company_id', '=', self.env.company.id)
-        ]).get_sql()
-        where_params = [tuple(self.ids)] + where_params
-        if where_clause:
-            where_clause = 'AND ' + where_clause
+            ('company_id', 'child_of', self.env.company.root_id.id)
+        ])
+        self.env['account.move.line'].flush_model(
+            ['account_id', 'amount_residual', 'company_id', 'parent_state', 'partner_id', 'reconciled']
+        )
+        self.env['account.account'].flush_model(['account_type'])
         recod = False
         for record in self:
             recod = record
+            print("record-----------------------------------------------",recod)
+        print("2222222222:::::::::",isinstance(self.id,int))
         if isinstance(recod.id, int):
-            self._cr.execute("""SELECT account_move_line.partner_id , a.account_type, SUM(account_move_line.amount_residual)
-                          FROM """ + tables + """
-                          LEFT JOIN account_account a ON (account_move_line.account_id=a.id)
-                          WHERE a.account_type IN ('asset_receivable','liability_payable')
-                          AND account_move_line.partner_id IN %s
-                          AND account_move_line.reconciled IS NOT TRUE
-                          """ + where_clause + """
-                          GROUP BY account_move_line.partner_id, a.account_type
-                          """, where_params)
+
+            sql = SQL("""
+                SELECT account_move_line.partner_id, a.account_type, SUM(account_move_line.amount_residual)
+                FROM %s
+                LEFT JOIN account_account a ON (account_move_line.account_id=a.id)
+                WHERE a.account_type IN ('asset_receivable','liability_payable')
+                AND account_move_line.partner_id IN %s
+                AND account_move_line.reconciled IS NOT TRUE
+                AND %s
+                GROUP BY account_move_line.partner_id, a.account_type
+                """,
+                query.from_clause,
+                tuple(self.ids),
+                query.where_clause or SQL("TRUE"),
+            )
+
             treated = self.browse()
-            for pid, type, val in self._cr.fetchall():
+            results = self.env.execute_query(sql)
+            print("SQL Results:", results)
+            for pid, account_type, val in self.env.execute_query(sql):
                 partner = self.browse(pid)
-                if type == 'asset_receivable':
+                print(f"Partner ID: {pid}, Type: {account_type}, Value: {val}")
+
+                if account_type == 'asset_receivable':
                     partner.credit = val
                     if partner not in treated:
                         partner.debit = False
                         treated |= partner
-                elif type == 'liability_payable':
+                elif account_type == 'liability_payable':
                     partner.debit = -val
                     if partner not in treated:
                         partner.credit = False
@@ -103,3 +183,5 @@ class ResPartner(models.Model):
             for rec in self:
                 rec.debit = False
                 rec.credit = False
+
+        

@@ -49,7 +49,7 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     @api.model
-    def has_group(self, group_ext_id):
+    def has_group(self, group_ext_id: str) -> bool:
         # use singleton's id if called on a non-empty recordset, otherwise
         # context uid
 

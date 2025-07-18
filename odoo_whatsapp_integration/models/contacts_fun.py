@@ -10,6 +10,7 @@ class SaleOrderValidation(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "No Country Code! Please add a valid mobile number along with country code!"
+
             return {
                 'name': 'Invalid Mobile Number',
                 'type': 'ir.actions.act_window',
@@ -22,6 +23,7 @@ class SaleOrderValidation(models.Model):
                 'context': context
             }
         else:
+            print("11---")
             return {'type': 'ir.actions.act_window',
                     'name': _('Whatsapp Message'),
                     'res_model': 'whatsapp.wizard.contact',

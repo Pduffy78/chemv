@@ -2,7 +2,7 @@
  <odoo>
  
 	<template id="invoice_tax_report"  inherit_id="account.report_invoice_document">
-		<xpath expr="//h2" position="replace">
+		<xpath expr="//t[@t-set='layout_document_title']" position="replace">
 		 	 <h2>
                         <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Tax Invoice</span>
                         <span t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>

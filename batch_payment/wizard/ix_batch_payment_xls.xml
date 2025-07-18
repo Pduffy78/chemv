@@ -16,7 +16,7 @@
 							<field name="file_name" invisible="1" />
 							<field name="exported" invisible="1" />
 							<field name="file" readonly="1" filename="file_name"
-								nolabel="1" attrs="{'invisible':[('exported','=',False)]}" />
+								nolabel="1" invisible="exported == False" />
 						</group>
 						<group>
 							<field name="end_date" required="1" />
@@ -56,7 +56,7 @@
 							<field name="exported" invisible="1" />
 							<field name="file_name" invisible="1" />
 							<field name="file" readonly="1" filename="file_name"
-								nolabel="1" attrs="{'invisible':[('exported','=',False)]}" />
+								nolabel="1" invisible="exported == False"  />
 						</group>
 					</group>
 					<footer>

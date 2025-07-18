@@ -13,6 +13,7 @@ class SaleOrderValidation(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "Please add a mobile number!"
+            print("not record_phone")
             return {
                 'name': 'Mobile Number Field Empty',
                 'type': 'ir.actions.act_window',
@@ -24,11 +25,13 @@ class SaleOrderValidation(models.Model):
                 'target': 'new',
                 'context': context
             }
+            
         if not record_phone[0] == "+":
             view = self.env.ref('odoo_whatsapp_integration.warn_message_wizard')
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "No Country Code! Please add a valid mobile number along with country code!"
+            print("country code not added")
             return {
                 'name': 'Invalid Mobile Number',
                 'type': 'ir.actions.act_window',
@@ -40,7 +43,9 @@ class SaleOrderValidation(models.Model):
                 'target': 'new',
                 'context': context
             }
+            
         else:
+            print("sale fun temp-------")
             return {'type': 'ir.actions.act_window',
                     'name': _('Whatsapp Message'),
                     'res_model': 'whatsapp.wizard',
@@ -50,6 +55,7 @@ class SaleOrderValidation(models.Model):
                     'context': {
                         'default_template_id': self.env.ref('odoo_whatsapp_integration.whatsapp_sales_template').id},
                     }
+            
 
     def send_direct_message(self):
         record_phone = self.partner_id.mobile
@@ -58,6 +64,7 @@ class SaleOrderValidation(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "Please add a mobile number!"
+            print("not record_phone")
             return {
                 'name': 'Mobile Number Field Empty',
                 'type': 'ir.actions.act_window',
@@ -69,11 +76,14 @@ class SaleOrderValidation(models.Model):
                 'target': 'new',
                 'context': context
             }
+           
+
         if not record_phone[0] == "+":
             view = self.env.ref('odoo_whatsapp_integration.warn_message_wizard')
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "No Country Code! Please add a valid mobile number along with country code!"
+            print("country code not added")
             return {
                 'name': 'Invalid Mobile Number',
                 'type': 'ir.actions.act_window',
@@ -85,30 +95,41 @@ class SaleOrderValidation(models.Model):
                 'target': 'new',
                 'context': context
             }
+            
         else:
             prods = ""
             for rec in self:
                 for id in rec.order_line:
                     prods = prods + "*" +str(id.product_id.name) + " : " + str(id.product_uom_qty) + "* \n"
+                    print("prods",prods)
 
             custom_msg = "Hello *{}*, your Sale Order *{}* with amount *{} {}* is ready. \nYour order contains following items: \n{}".format(str(self.partner_id.name),str(self.name),str(self.currency_id.symbol),str(self.amount_total),prods)
+            print("msg",custom_msg)
             ph_no = [number for number in record_phone if number.isnumeric()]
+            print("number",ph_no)
             ph_no = "".join(ph_no)
             ph_no = "+" + ph_no
+            print("formatted:", ph_no)
 
             link = "https://web.whatsapp.com/send?phone=" + ph_no
+
             message_string = parse.quote(custom_msg)
 
+
             url_id = link + "&text=" + message_string
+            print("URL", url_id)
+            print("send message successfully...!")
             return {
                 'type':'ir.actions.act_url',
                 'url': url_id,
                 'target':'new',
                 'res_id': self.id,
             }
+            
 
     def check_value(self, partner_ids):
         partners = groupby(partner_ids)
+        print("partners,,,,,,,", partners)
         return next(partners, True) and not next(partners, False)
 
     def multi_sms(self):
@@ -118,16 +139,21 @@ class SaleOrderValidation(models.Model):
         sale_nums = []
         for sale in sale_order_ids:
             cust_ids.append(sale.partner_id.id)
+            print("CUST",cust_ids)
             sale_nums.append(sale.name)
+            print("SALE NUM", sale_nums)
 
         # To check unique customers
         cust_check = self.check_value(cust_ids)
+        print("CHECK CUST", cust_check)
 
         if cust_check:
             sale_numbers = sale_order_ids.mapped('name')
             sale_numbers = "\n".join(sale_numbers)
+            print("SALE NUMBERS------",sale_numbers)
 
             form_id = self.env.ref('odoo_whatsapp_integration.whatsapp_multiple_message_wizard_form').id
+            print("FORM",form_id)
             product_all = []
             for each in sale_order_ids:
                 prods = ""
@@ -144,6 +170,7 @@ class SaleOrderValidation(models.Model):
                 counter += 1
 
             final_msg = custom_msg + "\nDo not hesitate to contact us if you have any questions."
+            print("final_msg",final_msg)
 
             ctx = dict(self.env.context)
             ctx.update({
@@ -151,6 +178,7 @@ class SaleOrderValidation(models.Model):
                 'default_partner_id': self.partner_id.id,
                 'default_mobile': self.partner_id.mobile,
             })
+            print("context",ctx)
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',

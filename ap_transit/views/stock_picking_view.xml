@@ -7,13 +7,13 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='location_dest_id']" position="after">
                 <field name="location_transit_id"
-                       attrs="{'invisible': ['|',('picking_type_code','!=','internal'),('is_transit','=', True)]}"/>
+                       invisible="picking_type_code != 'internal' and is_transit == True"/>
 	        </xpath>
 	        <xpath expr="//field[@name='origin']" position="after">
                 <field name="is_transit" invisible="1"/>
 	        </xpath>
 	        <xpath expr="//div[@name='button_box']" position="inside">
-                <button string="Transfer" type="object" name="button_view_created_transfer" class="oe_stat_button" icon="fa-chevron-right" attrs="{'invisible': ['|',('state', 'not in', ['done']),('is_transit','=', True)]}"/>
+                <button string="Transfer" type="object" name="button_view_created_transfer" class="oe_stat_button" icon="fa-chevron-right" invisible="state not in ['done'] and  is_transit == True"/>
             </xpath>
 	    </field>
     </record>

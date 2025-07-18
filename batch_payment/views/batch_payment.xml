@@ -8,10 +8,9 @@
 				<form create="false">
 					<header>
 						<button string="Approve" type="object" name="btn_approved"
-							groups="account.group_account_manager" class="btn-primary"
-							attrs="{'invisible': [('state','in',['approved','rejected'])]}" />
+							groups="account.group_account_manager" class="btn-primary" invisible="state in ['approved','rejected']" />
 						<button string="Reject" type="object" name="btn_rejected"
-							attrs="{'invisible': [('state','in',['rejected'])]}"
+							invisible="state in ['rejected']"
 							groups="account.group_account_manager" class="btn-primary" />
 						<button string="Print Report" type="object"
 							name="print_batch_payment_pdf" class="btn-primary" />
@@ -38,26 +37,26 @@
 								<field name="company_id" readonly="1" options="{'no_open':True}"/>
 								<field name="bank_id" domain="[('is_batch_payment','=',True)]"/>
 							</group>
-							<field name='vendor_bill_ids' attrs="{'readonly': [('state','not in',['to be approved'])]}" force_save="1">
-								<tree create="false" edit="false" editable="bottom">
+							<field name='vendor_bill_ids' readonly="state not in ['to be approved']"  force_save="1">
+								<list create="false" edit="false" editable="bottom">
 									<field name="partner_id" readonly="1" force_save="1" options="{'no_open':True}"/>
 									<field name='invoice_id' readonly="1" force_save="1" options="{'no_open':True}"/>
 									<field name='number' readonly="1" force_save="1"/>
 									<field name="amount_untaxed" readonly="1" force_save="1" sum="Total"/>
 									<field name='balance_amount' readonly="1" force_save="1" sum="Total"/>
 									<field name='pay_amount' required="1" force_save="1" sum="Total"/>
-								</tree>
+								</list>
 							</field>
 						</group>
 						<group>
 							<group>
-								<field name="is_add" attrs="{'invisible': [('state','!=','to be approved')]}" widget="boolean_toggle"/>
+								<field name="is_add" invisible="state != 'to be approved'" widget="boolean_toggle"/>
 							</group>
 						</group>
 						<field name="invoice_list_ids" invisible="1" force_save="1"/>
-						<field name="invoice_ids" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" force_save="1" domain="[('move_type','=','in_invoice'),('state','=','posted'),('id','not in',invoice_list_ids),('company_id','=',company_id)]" attrs="{'invisible': ['|',('is_add','=',False),('state','!=','to be approved')]}">
-							<tree delete="false" editable="false">
-						        <field name="partner_id" groups="base.group_user" string="Vendor" options="{'no_open': True}"/>
+						<field name="invoice_ids" options="{'no_create': True, 'no_create_edit':True, 'no_open':True}" force_save="1" domain="[('move_type','=','in_invoice'),('state','=','posted'),('id','not in',invoice_list_ids),('company_id','=',company_id)]" invisible="is_add == False or state != 'to be approved'" >
+							<list delete="false" >
+						        <!-- <field name="partner_id" groups="base.group_user" string="Vendor" options="{'no_open': True}"/> -->
 			                    <field name="invoice_date" string="Bill Date"/>
 			                    <field name="number"/>
 			                    <field name="ref"/>
@@ -69,7 +68,7 @@
 			                    <field name="currency_id" invisible="1"/>
 			                    <field name="state"/>
 			                    <field name="move_type" invisible="context.get('type',True)"/>
-						    </tree>
+						    </list>
 						</field>
 					</sheet>
 				</form>
@@ -79,10 +78,10 @@
 			<field name='name'>tree.view.bachpayment_ap</field>
 			<field name='model'>ix.batch.payment.ap</field>
 			<field name='arch' type='xml'>
-				<tree>
+				<list>
 					<field name='payment_date' />
 					<field name='memo' />
-				</tree>
+				</list>
 			</field>
 		</record>
 
@@ -90,7 +89,7 @@
 			<field name="name">Batch Payment</field>
 			<field name="res_model">ix.batch.payment.ap</field>
 			<!-- <field name="view_type">form</field> -->
-			<field name="view_mode">tree,form</field>
+			<field name="view_mode">list,form</field>
 			<field name="view_id" ref="tree_view_batchpayment_ap" />
 			<field name="context">{}</field>
 		</record>
@@ -132,8 +131,8 @@
 					</group>
 					<button class="oe_highlight" type="object"
 						name="button_approve" string="Approve"
-						groups="account.group_account_manager"
-						attrs="{'invisible': [('is_approve','=',True)]}" />
+						groups="account.group_account_manager" invisible="is_approve == True"
+						 />
 				</page>
 			</xpath>
 		</field>

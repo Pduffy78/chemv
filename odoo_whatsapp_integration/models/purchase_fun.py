@@ -13,6 +13,7 @@ class PurchaseOrderModule(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "Please add a mobile number!"
+            print("context-------", context)
             return {
                 'name': 'Mobile Number Field Empty',
                 'type': 'ir.actions.act_window',
@@ -58,6 +59,7 @@ class PurchaseOrderModule(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "Please add a mobile number!"
+            print("not record_phone")
             return {
                 'name': 'Mobile Number Field Empty',
                 'type': 'ir.actions.act_window',
@@ -74,6 +76,7 @@ class PurchaseOrderModule(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "No Country Code! Please add a valid mobile number along with country code!"
+            print("country code not added")
             return {
                 'name': 'Invalid Mobile Number',
                 'type': 'ir.actions.act_window',
@@ -94,12 +97,15 @@ class PurchaseOrderModule(models.Model):
             custom_msg = "Hello *{}*, your Purchase Order *{}* with amount *{} {}* is ready. \nYour order contains following items:\n {}".format(str(self.partner_id.name),str(self.name),str(self.currency_id.symbol),str(self.amount_total),prods)
             ph_no = [number for number in record_phone if number.isnumeric()]
             ph_no = "".join(ph_no)
+            print("ph_no",ph_no)
             ph_no = "+" + ph_no
+            print("formatted ph",ph_no)
 
             link = "https://web.whatsapp.com/send?phone=" + ph_no
             message_string = parse.quote(custom_msg)
 
             url_id = link + "&text=" + message_string
+            print("URL",url_id)
             return {
                 'type':'ir.actions.act_url',
                 'url': url_id,
@@ -109,25 +115,32 @@ class PurchaseOrderModule(models.Model):
 
     def check_value(self, partner_ids):
         partners = groupby(partner_ids)
+        print("partners=====",partners)
         return next(partners, True) and not next(partners, False)
 
     def multi_sms(self):
         purchase_order_ids = self.env['purchase.order'].browse(self.env.context.get('active_ids'))
 
+
         cust_ids = []
         purchase_nums = []
         for purchase in purchase_order_ids:
             cust_ids.append(purchase.partner_id.id)
+            print("cust_id----------",cust_ids)
             purchase_nums.append(purchase.name)
 
         # To check unique customers
         cust_check = self.check_value(cust_ids)
+        print("CHECK CUST", cust_check)
+
 
         if cust_check:
             purchase_numbers = purchase_order_ids.mapped('name')
             purchase_numbers = "\n".join(purchase_numbers)
+            print("PURCHAS NUMBERS------",purchase_numbers)
 
             form_id = self.env.ref('odoo_whatsapp_integration.whatsapp_multiple_message_wizard_form').id
+            print("form_id",form_id)
             product_all = []
             for each in purchase_order_ids:
                 prods = ""

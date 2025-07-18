@@ -8,7 +8,7 @@
             <field name="inherit_id" ref="payment.payment_provider_form"/>
             <field name="arch" type="xml">
                 <xpath expr='//page[@name="credentials"]' position='inside'>
-                    <group attrs="{'invisible': [('code', '!=', 'payfast_73lines')]}">
+                    <group invisible="code != 'payfast_73lines'">
                         <field name="payfast_merchant_id"/>
                         <field name="payfast_secret"/>
                         <field name="payfast_passphrase"/>

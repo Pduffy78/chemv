@@ -67,7 +67,7 @@
         <field name="inherit_id" ref="base.view_partner_form"></field>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='mobile']" position="after">
-                <button icon="fa-whatsapp" style="color:#25D366;border:none" help="Send WhatsApp Message" name="contact_whatsapp" type="object" attrs="{'invisible': [('mobile', '=', False)]}"/>
+                <button icon="fa-whatsapp" style="color:#25D366;border:none" help="Send WhatsApp Message" name="contact_whatsapp" type="object" invisible="mobile == False"/>
             </xpath>
         </field>
     </record>

@@ -25,12 +25,13 @@ class ResPartner(models.Model):
 class SaleOrder(models.Model):
 	_inherit = 'sale.order'
 
-	@api.model
-	def create(self,vals):
-		res = super(SaleOrder,self).create(vals)
-		partner_id = self.env['res.partner'].browse(vals.get('partner_id'))
-		if partner_id.is_follow_up_new:
-			raise ValidationError('You are Not Allowed To Create Sale')
+	@api.model_create_multi
+	def create(self,vals_list):
+		for vals in vals_list:
+			partner_id = self.env['res.partner'].browse(vals.get('partner_id'))
+			if partner_id.is_follow_up_new:
+				raise ValidationError('You are Not Allowed To Create Sale')
+		res = super(SaleOrder,self).create(vals_list)
 		return res
 
 	def write(self,vals):
@@ -43,12 +44,13 @@ class SaleOrder(models.Model):
 class AccountMove(models.Model):
 	_inherit = 'account.move'
 
-	@api.model
-	def create(self,vals):
-		res = super(AccountMove,self).create(vals)
-		partner_id = self.env['res.partner'].browse(vals.get('partner_id'))
-		if partner_id.is_follow_up_new:
-			raise ValidationError('You are Not Allowed To Create Invoice')
+	@api.model_create_multi
+	def create(self,vals_list):
+		for vals in vals_list:
+			partner_id = self.env['res.partner'].browse(vals.get('partner_id'))
+			if partner_id.is_follow_up_new:
+				raise ValidationError('You are Not Allowed To Create Invoice')
+		res = super(AccountMove,self).create(vals_list)
 		return res
 
 	def write(self,vals):

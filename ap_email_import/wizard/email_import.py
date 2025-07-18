@@ -56,7 +56,10 @@ class EmailImportWizard(models.TransientModel):
                 #         else:
                 #             tag_ids_list.append(exst_tag.id)
                 # tag_ids = [(6, 0, tag_ids_list)]
-                subscription_list_ids = [(0, 0, {'list_id' : self.mail_list_id.id})]
+                # subscription_list_ids = [(0, 0, {'list_id' : self.mail_list_id.id})]
+
+                list_ids = [(6, 0, [self.mail_list_id.id])]
+
                 mailing_contact_obj.create({
                     'name' : name,
                     'email' : email,
@@ -66,7 +69,8 @@ class EmailImportWizard(models.TransientModel):
                     # 'zip' : zip,
                     'company_name' : company_name,
                     # 'tag_ids' : tag_ids,
-                    'subscription_list_ids' : subscription_list_ids,
+                    # 'subscription_list_ids' : subscription_list_ids,
+                    'list_ids': list_ids
                     })
 
 

@@ -4,13 +4,13 @@
         <field name="name">Job Card</field>
         <field name="model">job.cards.studio</field>
         <field name="arch" type="xml">
-          <tree string="Job Cards">
+          <list string="Job Cards">
           	<field name="name"/>
 			  <field name="user_id" widget="many2one_avatar_user"/>
 			  <field name="company_id" groups="base.group_multi_company"/>
-			  <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'x_color'}"/>
+			  <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
 			  <field name="color" widget="color_picker"/>
-          </tree>
+          </list>
         </field>
       </record>
       
@@ -24,7 +24,7 @@
 			  <progressbar field="kanban_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
 			  <templates>
 			    <t t-name="kanban-box">
-			      <div class="o_kanban_record oe_kanban_global_click o_kanban_record_has_image_fill" color="x_color">
+			      <div class="o_kanban_record oe_kanban_global_click o_kanban_record_has_image_fill" color="color">
 			        <field class="o_kanban_image_fill_left" name="image" widget="image" />
 			        <div class="o_kanban_record_details">
 			          <div class="o_kanban_record_top" name="studio_auto_kanban_top">
@@ -41,12 +41,12 @@
 			              <div class="dropdown-menu" role="menu">
 			                <a t-if="widget.editable" role="menuitem" type="edit" class="dropdown-item">Edit</a>
 			                <a t-if="widget.deletable" role="menuitem" type="delete" class="dropdown-item">Delete</a>
-			                <ul class="oe_kanban_colorpicker" data-field="x_color"/>
+			                <ul class="oe_kanban_colorpicker" data-field="color"/>
 			              </div>
 			            </div>
 			          </div>
 			          <div class="o_kanban_record_body" name="studio_auto_kanban_body">
-			            <field name="tag_ids" options="{'color_field': 'x_color'}"/>
+			            <field name="tag_ids" options="{'color_field': 'color'}"/>
 			          </div>
 			          <div class="o_kanban_record_bottom" name="studio_auto_kanban_bottom">
 			            <div class="oe_kanban_bottom_left" name="studio_auto_kanban_bottom_left"/>
@@ -70,13 +70,13 @@
             <field name="name">Job Card</field>
             <field name="model">job.cards.studio</field>
             <field name="arch" type="xml">
-                <form>
+                <form> 
 				  <header>
 				    <field name="stage_id" widget="statusbar" clickable="1"/>
 				  </header>
 				  <sheet string="Job Cards">
 				    <field name="kanban_state" widget="state_selection"/>
-				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+				    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" invisible="active == True"/>
 				    <field name="active" invisible="1"/>
 				    <field class="oe_avatar" widget="image" name="image"/>
 				    <div class="oe_title">
@@ -96,7 +96,7 @@
 				      </group>
 				      <group name="studio_group_433db5_right">
 				        <field name="user_id" widget="many2one_avatar_user"/>
-				        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'x_color'}"/>
+				        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
 				        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
 				      </group>
 				    </group>
@@ -109,12 +109,16 @@
 				      </page>
 				    </notebook>
 				  </sheet>
-				  <div class="oe_chatter" name="oe_chatter">
+				  <chatter>
+				   <div class="oe_chatter" name="oe_chatter">
 				    <field name="message_follower_ids"/>
 				    <field name="message_ids"/>
 				    <field name="activity_ids"/>
 				  </div>
+				</chatter>
+				 
 				</form>
+
             </field>
         </record>
         
@@ -133,7 +137,7 @@
 			      </group>
 			      <group name="studio_group_G1WKs_right" string="Previous Repairs History">
 			        <field name="number_of_major_repairs" string="Number of major repairs"/>
-			        <field name="repairs_note" string="Repairs Note:" force_save="True" attrs="{}" readonly="1"/>
+			        <field name="repairs_note" string="Repairs Note:" force_save="True" readonly="1"/>
 			      </group>
 			    </group>
 			    <group name="studio_group_GHVNa">
@@ -152,7 +156,7 @@
 			    <attribute name="create">true</attribute>
 			  </xpath>
 			  <xpath expr="//field[@name='name']" position="attributes">
-			    <attribute name="attrs">{}</attribute>
+			    
 			    <attribute name="force_save">True</attribute>
 			    <attribute name="placeholder">New</attribute>
 			    <attribute name="string">Job Card</attribute>
@@ -171,13 +175,13 @@
 			    <attribute name="string">Date Received</attribute>
 			  </xpath>
 			  <xpath expr="//page[@name='lines']" position="attributes">
-			    <attribute name="attrs">{"invisible": []}</attribute>
+			    
 			    <attribute name="string">Initial Inspection</attribute>
 			  </xpath>
 			  <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
 			    <page string="Injury Preparation" name="studio_page_5gurW">
 			      <group name="studio_group_5gurW">
-			        <group name="studio_group_5gurW_left" attrs="{}" string="Preparation checklist">
+			        <group name="studio_group_5gurW_left"  string="Preparation checklist">
 			          <field name="gouging_completed" string="Gouging completed:" widget="radio" />
 			          <field name="shaping_of_injury" string="Shaping of Injury:" widget="radio" />
 			          <field name="overbuff_border" string="Overbuff Border:" widget="radio" />
@@ -343,7 +347,7 @@
         <record model="ir.actions.act_window" id="action_job_cards">
 		<field name="name">Job Cards</field>
 		<field name="res_model">job.cards.studio</field>
-		<field name="view_mode">tree,form,kanban</field>
+		<field name="view_mode">list,form,kanban</field>
 		<field name="view_id" ref="job_card_tree_view_ap"/>
 		</record>
     

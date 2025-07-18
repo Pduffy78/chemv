@@ -4,12 +4,12 @@
         <field name="name">debtor.issue.import</field>
         <field name="model">account.import.issue</field>
         <field name="arch" type="xml">
-          <tree string="Debtor Issue">
+          <list string="Debtor Issue">
           	<field name="issue"/>
           	<field name="ap_company_id"/>
           	<field name="row_data"/>
           	<!-- <field name="customer"/> -->
-          </tree>
+          </list>
         </field>
       </record>
 
@@ -17,7 +17,7 @@
       <field name="name">Debtor Import Issue</field>
       <field name="res_model">account.import.issue</field>
       <field name="type">ir.actions.act_window</field>
-      <field name="view_mode">tree</field>
+      <field name="view_mode">list</field>
       <field name="view_id" ref="debtor_import_issue_tree"/>
   
   </record>
@@ -34,7 +34,7 @@
    </record>
 
    <menuitem id="importwiz" name="Import "
-            parent="account_accountant.menu_accounting" ></menuitem>
+            parent="account.account_account_menu" sequence="100" ></menuitem>
    <menuitem id="importwiz_debtor_import" name="Debtor Import"
             parent="importwiz" action="import_action"></menuitem>
    <menuitem id="importwiz_debtor_issue" name="Debtor Issue"

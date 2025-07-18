@@ -7,7 +7,6 @@ from odoo import api, fields, models
 
 
 class StatementCommon(models.AbstractModel):
-
     _name = "statement.common.wizard"
     _description = "Statement Reports Common Wizard"
 
@@ -36,7 +35,7 @@ class StatementCommon(models.AbstractModel):
     )
 
     account_type = fields.Selection(
-        [("asset_receivable", "Receivable"),("liability_payable", "Payable")],
+        [("asset_receivable", "Receivable"), ("liability_payable", "Payable")],
         default="asset_receivable",
     )
 
@@ -50,7 +49,6 @@ class StatementCommon(models.AbstractModel):
             self.date_end = fields.Date.context_today(self)
 
     def _prepare_statement(self):
-        print("self._context==============",self._context)
         self.ensure_one()
         return {
             "date_end": self.date_end,
@@ -66,14 +64,11 @@ class StatementCommon(models.AbstractModel):
     def button_export_html(self):
         self.ensure_one()
         report_type = "qweb-html"
-
         return self._export(report_type)
 
     def button_export_pdf(self):
-        print("self.wizard===========",self)
         self.ensure_one()
         report_type = "qweb-pdf"
-        
         return self._export(report_type)
 
     def button_export_xlsx(self):

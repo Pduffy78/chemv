@@ -2,8 +2,8 @@
 {
     'name': 'AP Email Import',
     'category': 'Email',
-    'version': '15.0',
-    'depends': ['base','mass_mailing','mass_mailing_extended'],
+    'version': '18.1',
+    'depends': ['mass_mailing'],
     'description': """AP Email Import""",
     'data': [
               'security/ir.model.access.csv',

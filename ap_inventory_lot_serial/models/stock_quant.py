@@ -7,12 +7,12 @@ from odoo import http
 class StockQuant(models.Model):
     _inherit = "stock.quant"
 
-    @api.model
-    def create(self,vals):
-        res = super(StockQuant,self).create(vals)
-        # print("\n\n\nstock Quant Method Called?>>>>>>>>>>>>>>>\n\n\n",vals,res)
+    # @api.model
+    # def create(self,vals):
+    #     res = super(StockQuant,self).create(vals)
+    #     # print("\n\n\nstock Quant Method Called?>>>>>>>>>>>>>>>\n\n\n",vals,res)
 
-        return res
+    #     return res
 
 class BaseImport(models.TransientModel):
 
@@ -35,7 +35,7 @@ class BaseImport(models.TransientModel):
             for rec in merged_data:
                 
                 if rec[2] != '':
-                    lot_id = self.env['stock.production.lot'].search([('name','=',rec[2].strip())])
+                    lot_id = self.env['stock.lot'].search([('name','=',rec[2].strip())])
                     
                     # location_id = self.env['stock.location'].search([('display_name','=',rec[0].strip())])
                     # split_string = rec[1].split("]")
@@ -51,7 +51,7 @@ class BaseImport(models.TransientModel):
                         split_string = rec[1].split("]")
                         product_id = self.env['product.product'].search([('name','=',split_string[1].strip())])
                         
-                        self.env['stock.production.lot'].create({
+                        self.env['stock.lot'].create({
                                 'name':rec[2].strip(),
                                 'product_id':product_id.id,
                                 'company_id':self.env.company.id

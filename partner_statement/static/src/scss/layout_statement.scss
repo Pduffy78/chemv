@@ -20,3 +20,18 @@
         background-color: $gray-500 !important;
     }
 }
+
+.statement-reconciled {
+    font-size: smaller;
+    font-style: italic !important;
+    td:last-child {
+        font-style: italic !important;
+    }
+}
+
+.statement-outside-date-rank {
+    color: $red !important;
+    td:last-child {
+        color: $red !important;
+    }
+}

@@ -71,20 +71,20 @@ class ix_batch_payment_vendor_report(models.TransientModel):
             ws[j].write(0, 14, 'Run Date', style1) 
             
             for lines in data.vendor_bill_ids:
-                ws[j].write(i, 0, data.create_date, style0)
+                ws[j].write(i, 0, str(data.create_date), style0)
                 ws[j].write(i, 1, lines.partner_id.name, style0)
                 ws[j].write(i, 2, lines.invoice_id.number, style0)
-                ws[j].write(i, 3, lines.invoice_id.invoice_date, style0)
+                ws[j].write(i, 3, str(lines.invoice_id.invoice_date), style0)
                 ws[j].write(i, 4, data.memo, style0)
                 ws[j].write(i, 5, 'Vendor Payment', style0)
                 ws[j].write(i, 6, lines.invoice_id.amount_total, style0)
                 ws[j].write(i, 7, lines.pay_amount, style0)
-                ws[j].write(i, 8, data.payment_date, style0)
+                ws[j].write(i, 8, str(data.payment_date), style0)
                 ws[j].write(i, 10, lines.pay_amount, style0)
                 ws[j].write(i, 11, lines.partner_id.branch_name_code, style0)
                 ws[j].write(i, 12, lines.partner_id.acc_no_ap, style0)
                 ws[j].write(i, 13, lines.partner_id.bank_financial_inst, style0)
-                ws[j].write(i, 14, data.run_date, style0)
+                ws[j].write(i, 14, str(data.run_date), style0)
                 i += 1
             
         j = 1
@@ -119,20 +119,20 @@ class ix_batch_payment_vendor_report(models.TransientModel):
             for record in self.env['vendor.invoice.ap'].search([('vendor_id','=', data.id)]):
                 total_approved += record.pay_amount
                 total_amount_total += record.invoice_id.amount_total
-                ws[j].write(i, 0, data.create_date, style0)
+                ws[j].write(i, 0, str(data.create_date), style0)
                 ws[j].write(i, 1, record.partner_id.name, style0)
                 ws[j].write(i, 2, record.invoice_id.number, style0)
-                ws[j].write(i, 3, record.invoice_id.invoice_date, style0)
+                ws[j].write(i, 3, str(record.invoice_id.invoice_date), style0)
                 ws[j].write(i, 4, data.memo, style0)
                 ws[j].write(i, 5, 'Vendor Payment', style0)
                 ws[j].write(i, 6, record.invoice_id.amount_total, style0)
                 ws[j].write(i, 7, record.pay_amount, style0)
-                ws[j].write(i, 8, data.payment_date, style0)
+                ws[j].write(i, 8, str(data.payment_date), style0)
                 ws[j].write(i, 10, record.pay_amount, style0)
                 ws[j].write(i, 11, record.partner_id.branch_name_code, style0)
                 ws[j].write(i, 12, record.partner_id.acc_no_ap, style0)
                 ws[j].write(i, 13, record.partner_id.bank_financial_inst, style0)
-                ws[j].write(i, 14, data.run_date, style0)
+                ws[j].write(i, 14, str(data.run_date), style0)
                 i += 1
             
             ws[j].write(i, 0, 'Total', style1)  

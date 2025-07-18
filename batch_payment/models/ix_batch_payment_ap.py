@@ -188,7 +188,7 @@ class ix_batch_payment_ap(models.Model):
                     'partner_id': partner and partner.id, 
                     'amount':  total_amount, 
                     'date': self.payment_date, 
-                    'ref': communication,
+                    'memo': communication,
                     'journal_id': self.bank_id.id,
                     'batch_payment_id' : self.id
                     }
@@ -197,8 +197,12 @@ class ix_batch_payment_ap(models.Model):
             payment_move_line_debit = payment.move_id.line_ids.filtered(lambda x: x.debit and x.debit not in [0, 0.0, 0.00])
             payment_move_line_credit = payment.move_id.line_ids.filtered(lambda x: x.credit and x.credit not in [0, 0.0, 0.00])
             for inv in invoice_rec_ids:
-                inv.js_assign_outstanding_line(payment_move_line_debit.ids)
-                inv.js_assign_outstanding_line(payment_move_line_credit.ids)
+                print("payment_move_line_debit",payment_move_line_debit)
+                print("payment_move_line_credit",payment_move_line_credit)
+                if payment_move_line_debit:
+                    inv.js_assign_outstanding_line(payment_move_line_debit.ids)
+                if payment_move_line_credit:
+                    inv.js_assign_outstanding_line(payment_move_line_credit.ids)
         self.state ='approved'
     
     # @api.one
@@ -218,19 +222,44 @@ class ix_batch_payment_ap(models.Model):
     
     # @api.multi
     def print_batch_payment_pdf(self):
-        return self.env.ref('batch_payment.action_ap_batch_payment').report_action(self)
+        return self.env.ref('batch_payment.action_ap_batch_payment').report_action(self.id)
 
-    @api.model
-    def create(self, vals):
-        result = super(ix_batch_payment_ap, self).create(vals)
-        if result and vals.get('payment_date'):
-            split_date = vals.get('payment_date').split('-')
-            date_res = ''.join(map(str, split_date))
-            new_seq = self.env['ir.sequence'].with_context(force_company=result.company_id.id).next_by_code("ix.batch.payment.ap")
-            if new_seq:
-                sequence = 'SB' + date_res + 'EFT' + new_seq
-                result.write({'number': sequence})
-        return result
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            print("cal",vals)
+            if vals.get('payment_date'):
+                split_date = vals['payment_date'].split('-')
+                print("split data",split_date)
+                date_res = ''.join(split_date)
+                print("date_res",date_res)
+                company_id = vals.get('company_id') or self.env.company.id
+                print("company",company_id)
+ 
+                new_seq = self.env['ir.sequence'].with_context(company_id=company_id).next_by_code("ix.batch.payment.ap")
+                print("new_seq",new_seq)
+                if new_seq:
+                    sequence = 'SB' + date_res + 'EFT' + new_seq
+                    vals['number'] = sequence
+                    print("number",vals['number'])
+ 
+        records = super(ix_batch_payment_ap, self).create(vals_list)
+        return records
+ 
+    # @api.model_create_multi
+    # def create(self, vals_list):
+        
+    #     result = super(ix_batch_payment_ap, self).create(vals)
+    #     for vals in vals_list:
+    #         if result and vals.get('payment_date'):
+    #             split_date = vals.get('payment_date').split('-')
+    #             date_res = ''.join(map(str, split_date))
+    #             new_seq = self.env['ir.sequence'].with_context(force_company=result.company_id.id).next_by_code("ix.batch.payment.ap")
+    #             if new_seq:
+    #                 sequence = 'SB' + date_res + 'EFT' + new_seq
+    #                 result.write({'number': sequence})
+    #     # result = super(ix_batch_payment_ap, self).create(vals)
+    #     return result
     
     # @api.multi
     def write(self, vals):

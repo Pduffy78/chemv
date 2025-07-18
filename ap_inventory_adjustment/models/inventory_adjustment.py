@@ -92,7 +92,7 @@ class Inventory(models.Model):
         self.ensure_one()
         action = {
             'type': 'ir.actions.act_window',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'name': _('Inventory Lines'),
             'res_model': 'stock.quant',
         }

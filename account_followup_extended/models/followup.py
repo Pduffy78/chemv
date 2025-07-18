@@ -5,7 +5,7 @@ import time
 from odoo import models, fields, api
 from odoo.tools.misc import formatLang, format_date, get_lang
 from odoo.tools.translate import _
-from odoo.tools import append_content_to_html, DEFAULT_SERVER_DATE_FORMAT, html2plaintext
+# from odoo.tools import append_content_to_html, DEFAULT_SERVER_DATE_FORMAT, html2plaintext
 from odoo.exceptions import UserError
 
 
@@ -134,9 +134,9 @@ class AccountBankStatementLine(models.AbstractModel):
     
     
     def _synchronize_to_moves(self, changed_fields):
-        ''' Update the account.move regarding the modified account.bank.statement.line.
+        """ Update the account.move regarding the modified account.bank.statement.line.
         :param changed_fields: A list containing all modified fields on account.bank.statement.line.
-        '''
+        """
         if self._context.get('skip_account_move_synchronization'):
             return
 
@@ -148,8 +148,10 @@ class AccountBankStatementLine(models.AbstractModel):
 
         for st_line in self.with_context(skip_account_move_synchronization=True):
             liquidity_lines, suspense_lines, other_lines = st_line._seek_for_lines()
-            company_currency = st_line.journal_id.company_id.currency_id
-            journal_currency = st_line.journal_id.currency_id if st_line.journal_id.currency_id != company_currency else False
+            journal = st_line.journal_id
+            # bypassing access rights restrictions for branch-specific users in a branch company environment.
+            company_currency = journal.company_id.sudo().currency_id
+            journal_currency = journal.currency_id if journal.currency_id != company_currency else False
 
             line_vals_list = st_line._prepare_move_line_default_vals()
             line_ids_commands = [(1, liquidity_lines.id, line_vals_list[0])]
@@ -166,9 +168,11 @@ class AccountBankStatementLine(models.AbstractModel):
                 'currency_id': (st_line.foreign_currency_id or journal_currency or company_currency).id,
                 'line_ids': line_ids_commands,
             }
+            # if st_line.move_id.journal_id != journal:
+            #     st_line_vals['journal_id'] = journal.id
             if st_line.move_id.partner_id != st_line.partner_id:
                 st_line_vals['partner_id'] = st_line.partner_id.id
-            st_line.move_id.write(st_line_vals)
+            st_line.move_id.with_context(skip_readonly_check=True).write(st_line_vals)
 
     
     

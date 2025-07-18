@@ -2,9 +2,21 @@
 # Copyright 2021 ForgeFlow S.L.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import _, fields, models
+from odoo import _, models
 
 from odoo.addons.report_xlsx_helper.report.report_xlsx_format import FORMATS
+
+
+def copy_format(book, fmt):
+    properties = [f[4:] for f in dir(fmt) if f[0:4] == "set_"]
+    dft_fmt = book.add_format()
+    return book.add_format(
+        {
+            k: v
+            for k, v in fmt.__dict__.items()
+            if k in properties and dft_fmt.__dict__[k] != v
+        }
+    )
 
 
 class ActivityStatementXslx(models.AbstractModel):
@@ -17,7 +29,7 @@ class ActivityStatementXslx(models.AbstractModel):
         report_name = _("Activity Statement")
         if company_id:
             company = self.env["res.company"].browse(company_id)
-            suffix = " - {} - {}".format(company.name, company.currency_id.name)
+            suffix = f" - {company.name} - {company.currency_id.name}"
             report_name = report_name + suffix
         return report_name
 
@@ -29,14 +41,14 @@ class ActivityStatementXslx(models.AbstractModel):
         statement_header = _(
             "%(payable)sStatement between %(start)s and %(end)s in %(currency)s"
         ) % {
-            "payable": account_type == "payable" and _("Supplier ") or "",
+            "payable": account_type == "liability_payable" and _("Supplier ") or "",
             "start": partner_data.get("start"),
             "end": partner_data.get("end"),
             "currency": currency.display_name,
         }
 
         sheet.merge_range(
-            row_pos, 0, row_pos, 6, statement_header, FORMATS["format_right_bold"]
+            row_pos, 0, row_pos, 6, statement_header, FORMATS["format_left_bold"]
         )
         row_pos += 1
         sheet.write(
@@ -47,20 +59,25 @@ class ActivityStatementXslx(models.AbstractModel):
             row_pos,
             2,
             row_pos,
-            4,
+            3,
             _("Description"),
             FORMATS["format_theader_yellow_center"],
         )
         sheet.write(
-            row_pos, 5, _("Open Amount"), FORMATS["format_theader_yellow_center"]
+            row_pos, 4, _("Original Amount"), FORMATS["format_theader_yellow_center"]
         )
-        sheet.write(row_pos, 6, _("Balance"), FORMATS["format_theader_yellow_center"])
+        sheet.write(
+            row_pos, 5, _("Applied Amount"), FORMATS["format_theader_yellow_center"]
+        )
+        sheet.write(
+            row_pos, 6, _("Open Amount"), FORMATS["format_theader_yellow_center"]
+        )
         row_pos += 1
         sheet.write(
-            row_pos, 1, partner_data.get("start"), FORMATS["format_tcell_date_left"]
+            row_pos, 1, partner_data.get("prior_day"), FORMATS["format_tcell_date_left"]
         )
         sheet.merge_range(
-            row_pos, 2, row_pos, 4, _("Balance Forward"), FORMATS["format_tcell_left"]
+            row_pos, 2, row_pos, 5, _("Balance Forward"), FORMATS["format_tcell_left"]
         )
         sheet.write(
             row_pos,
@@ -68,12 +85,21 @@ class ActivityStatementXslx(models.AbstractModel):
             currency_data.get("balance_forward"),
             FORMATS["current_money_format"],
         )
+        format_tcell_left = FORMATS["format_tcell_left"]
+        format_tcell_date_left = FORMATS["format_tcell_date_left"]
+        format_distributed = FORMATS["format_distributed"]
+        current_money_format = FORMATS["current_money_format"]
         for line in currency_data.get("lines"):
+            if line.get("blocked"):
+                format_tcell_left = FORMATS["format_tcell_left_blocked"]
+                format_tcell_date_left = FORMATS["format_tcell_date_left_blocked"]
+                format_distributed = FORMATS["format_distributed_blocked"]
+                current_money_format = FORMATS["current_money_format_blocked"]
             row_pos += 1
             name_to_show = (
                 line.get("name", "") == "/" or not line.get("name", "")
             ) and line.get("ref", "")
-            if line.get("name", "") != "/":
+            if line.get("name", "") and line.get("name", "") != "/":
                 if not line.get("ref", ""):
                     name_to_show = line.get("name", "")
                 else:
@@ -83,30 +109,26 @@ class ActivityStatementXslx(models.AbstractModel):
                         name_to_show = line.get("name", "")
                     elif line.get("ref", "") not in line.get("name", ""):
                         name_to_show = line.get("ref", "")
+            sheet.write(row_pos, 0, line.get("move_id", ""), format_tcell_left)
+            sheet.write(row_pos, 1, line.get("date", ""), format_tcell_date_left)
+            sheet.merge_range(row_pos, 2, row_pos, 3, name_to_show, format_distributed)
+            sheet.write(row_pos, 4, line.get("amount", ""), current_money_format)
             sheet.write(
-                row_pos, 0, line.get("move_id", ""), FORMATS["format_tcell_left"]
+                row_pos, 5, line.get("applied_amount", ""), current_money_format
             )
-            sheet.write(
-                row_pos, 1, line.get("date", ""), FORMATS["format_tcell_date_left"]
-            )
-            sheet.merge_range(
-                row_pos, 2, row_pos, 4, name_to_show, FORMATS["format_distributed"]
-            )
-            sheet.write(
-                row_pos, 5, line.get("amount", ""), FORMATS["current_money_format"]
-            )
-            sheet.write(
-                row_pos, 6, line.get("balance", ""), FORMATS["current_money_format"]
-            )
+            sheet.write(row_pos, 6, line.get("open_amount", ""), current_money_format)
         row_pos += 1
         sheet.write(
             row_pos, 1, partner_data.get("end"), FORMATS["format_tcell_date_left"]
         )
         sheet.merge_range(
-            row_pos, 2, row_pos, 4, _("Ending Balance"), FORMATS["format_tcell_left"]
+            row_pos, 2, row_pos, 5, _("Ending Balance"), FORMATS["format_tcell_left"]
         )
         sheet.write(
-            row_pos, 6, currency_data.get("amount_due"), FORMATS["current_money_format"]
+            row_pos,
+            6,
+            currency_data.get("amount_due"),
+            FORMATS["current_money_format"],
         )
         return row_pos
 
@@ -180,11 +202,13 @@ class ActivityStatementXslx(models.AbstractModel):
             )
         return row_pos
 
-    def _size_columns(self, sheet):
+    def _size_columns(self, sheet, data):
         for i in range(7):
             sheet.set_column(0, i, 20)
 
     def generate_xlsx_report(self, workbook, data, objects):
+        lang = objects.lang or self.env.user.partner_id.lang
+        self = self.with_context(lang=lang)
         report_model = self.env["report.partner_statement.activity_statement"]
         self._define_formats(workbook)
         FORMATS["format_distributed"] = workbook.add_format({"align": "vdistributed"})
@@ -203,7 +227,7 @@ class ActivityStatementXslx(models.AbstractModel):
             0,
             row_pos,
             6,
-            _("Statement of Account from %s") % (company.display_name),
+            _("Statement of Account from %s") % (company.display_name,),
             FORMATS["format_ws_title"],
         )
         row_pos += 1
@@ -211,10 +235,10 @@ class ActivityStatementXslx(models.AbstractModel):
         sheet.write(
             row_pos,
             2,
-            fields.Date.from_string(data.get("date_end")),
+            data.get("data", {}).get(partners.ids[0], {}).get("today"),
             FORMATS["format_date_left"],
         )
-        self._size_columns(sheet)
+        self._size_columns(sheet, data)
         for partner in partners:
             invoice_address = data.get(
                 "get_inv_addr", lambda x: self.env["res.partner"]
@@ -276,16 +300,34 @@ class ActivityStatementXslx(models.AbstractModel):
             for currency_id in currencies:
                 currency = self.env["res.currency"].browse(currency_id)
                 if currency.position == "after":
-                    money_string = "#,##0.%s " % (
-                        "0" * currency.decimal_places
-                    ) + "[${}]".format(currency.symbol)
+                    money_string = (
+                        "#,##0.%s " % ("0" * currency.decimal_places)
+                        + f"[${currency.symbol}]"
+                    )
                 elif currency.position == "before":
-                    money_string = "[${}]".format(currency.symbol) + " #,##0.%s" % (
+                    money_string = f"[${currency.symbol}]" + " #,##0.%s" % (
                         "0" * currency.decimal_places
                     )
                 FORMATS["current_money_format"] = workbook.add_format(
                     {"align": "right", "num_format": money_string}
                 )
+                bg_grey = "#ADB5BD"
+                FORMATS["format_tcell_left_blocked"] = copy_format(
+                    workbook, FORMATS["format_tcell_left"]
+                )
+                FORMATS["format_tcell_left_blocked"].set_bg_color(bg_grey)
+                FORMATS["format_tcell_date_left_blocked"] = copy_format(
+                    workbook, FORMATS["format_tcell_date_left"]
+                )
+                FORMATS["format_tcell_date_left_blocked"].set_bg_color(bg_grey)
+                FORMATS["format_distributed_blocked"] = copy_format(
+                    workbook, FORMATS["format_distributed"]
+                )
+                FORMATS["format_distributed_blocked"].set_bg_color(bg_grey)
+                FORMATS["current_money_format_blocked"] = copy_format(
+                    workbook, FORMATS["current_money_format"]
+                )
+                FORMATS["current_money_format_blocked"].set_bg_color(bg_grey)
                 row_pos = self._write_currency_lines(
                     row_pos, sheet, partner, currency, data
                 )

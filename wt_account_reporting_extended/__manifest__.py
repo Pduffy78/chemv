@@ -2,7 +2,7 @@
 
 {
     "name" : "wt account reporting",
-    "version" : "13.0.0.1",
+    "version" : "18.0",
     "category" : "Accounting",
     'summary': 'account trial balance extended with account filter',
     "description": """
@@ -12,7 +12,7 @@
     "website" : "http://warlocktechnologies.com",
     "depends" : ['account_reports'],
     "data": [
-        'views/search_template_view_extended.xml',
+        # 'views/search_template_view_extended.xml',
         # 'views/assets.xml',
     ],
     'qweb': [],

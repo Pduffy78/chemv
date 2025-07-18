@@ -49,8 +49,10 @@ class tyre_details(models.Model):
     def _get_jobcard(self):
         for tyre in self:
             tyre.job_card_count = len(self.env['job.cards.studio'].search([('tyre_detail_id', '=', self.id)]).ids)
+            print("job_card_count======",tyre.job_card_count)
     
     def action_view_jobcard(self):
+        print("job cards--------------")
         return {
             'type': 'ir.actions.act_window',
             'name': _('Job Cards'),
@@ -60,8 +62,10 @@ class tyre_details(models.Model):
             'views': [[False, 'list'], [False, 'form']],
             'domain': [('tyre_detail_id', '=', self.id)],
         }
+
     
     def create_job_card(self):
+
         self.env['job.cards.studio'].create( {
             'tyre_detail_id' : self.id,
             'tyre_name' : self.name,
@@ -74,6 +78,7 @@ class tyre_details(models.Model):
             'tyre_make' : self.make or '',
             'tyre_rating' : self.rating or '',
             })
+        print("job cards--------------created")
 
 class job_cards_studio(models.Model):
     _name = 'job.cards.studio'

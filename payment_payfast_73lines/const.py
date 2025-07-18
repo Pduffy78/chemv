@@ -20,3 +20,8 @@ SUPPORTED_CURRENCIES = [
     'NOK', 'NZD', 'PHP', 'PLN', 'RON', 'RUB',
     'SEK', 'SGD', 'THB', 'TWD', 'USD', 'ZAR'
 ]
+
+DEFAULT_PAYMENT_METHOD_CODES = {
+    # Primary payment methods.
+    'payfast_73lines',
+}

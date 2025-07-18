@@ -13,6 +13,7 @@ class InvoiceTransferDone(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "Please add a mobile number!"
+            print("context-------", context)
             return {
                 'name': 'Mobile Number Field Empty',
                 'type': 'ir.actions.act_window',
@@ -58,6 +59,7 @@ class InvoiceTransferDone(models.Model):
             view_id = view and view.id or False
             context = dict(self._context or {})
             context['message'] = "Please add a mobile number!"
+            print("not record_phone")
             return {
                 'name': 'Mobile Number Field Empty',
                 'type': 'ir.actions.act_window',
@@ -118,6 +120,7 @@ class InvoiceTransferDone(models.Model):
         invoice_nums = []
         for sale in invoice_order_ids:
             cust_ids.append(sale.partner_id.id)
+            print("CUST ID", cust_ids)
             invoice_nums.append(sale.name)
 
         # To check unique customers

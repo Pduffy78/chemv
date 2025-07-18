@@ -1,11 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+ <!-- <?xml version="1.0" encoding="utf-8"?> -->
 <odoo>
 	<data>
 		<template inherit_id="account_reports.search_template" id="search_template_extended" name="Search Template">
 			<xpath expr="//div[@id='extra_options_dropdown']" position="after">
 				
-			 	<div id="account_dropdown" class="btn-account btn-group dropdown" t-if="options.get('account') != None">
+			 	<div id="account_dropdown" class="btn-account btn-group dropdown" >
+			 		<t t-if="options.get('account') != None">
 	            	<t t-call="wt_account_reporting_extended.search_template_account"/>
+	            </t>
 	        	</div>
 	        </xpath>
 
