@@ -219,10 +219,10 @@ class ReportStatementCommon(models.AbstractModel):
         return {
             "date_end": date_end,
             "current_date" : current_date,
-            "minus_30": current_date - relativedelta(months=1),
-            "minus_60": current_date - relativedelta(months=2),
-            "minus_90": current_date - relativedelta(months=3),
-            "minus_120": current_date - relativedelta(months=4),
+            "minus_30": current_date - timedelta(months=1),
+            "minus_60": current_date - timedelta(months=2),
+            "minus_90": current_date - timedelta(months=3),
+            "minus_120": current_date - timedelta(months=4),
         }
 
     def _get_bucket_dates_months(self, date_end):
