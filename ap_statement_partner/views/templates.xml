@@ -16,7 +16,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="currency['lines']" t-as="line" t-att-class="'statement-blocked' if line['blocked'] else ''">
+                    <tr
+                    t-foreach="currency[line_type]"
+                    t-as="line"
+                    t-att-class="'statement-blocked' if line['blocked'] else ''">
                             <t t-if="int(line['balance']) != 0">
                                 <td><span t-esc="line['move_id']" /></td>
                                 <td><span t-esc="line['date']" /></td>
