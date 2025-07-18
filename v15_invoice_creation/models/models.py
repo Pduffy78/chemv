@@ -28,7 +28,7 @@ from odoo.http import request
 from odoo.modules.module import get_module_resource
 from odoo.osv import expression
 from odoo.service.db import check_super
-from odoo.tools import partition, collections, frozendict, lazy_property, image_process
+# from odoo.tools import partition, frozendict, lazy_property, image_process
 
 _logger = logging.getLogger(__name__)
 
