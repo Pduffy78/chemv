@@ -123,14 +123,14 @@ class ActivityStatementRecord(models.Model):
 
                 pdf_content, format = report_action._render_qweb_pdf('partner_statement.activity_statement',[partner.id],data=data)
                 # pdf_content, _ = report_action.sudo()._render_qweb_pdf(record.id)
-                attachment = self.env['ir.attachment'].create({
-                    'name': f'Statement_{partner.name}.pdf',
-                    'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
-                    'mimetype': 'application/pdf',
-                    'res_model': 'res.partner',
-                    'res_id': partner.id,
-                })
+                # attachment = self.env['ir.attachment'].create({
+                #     'name': f'Statement_{partner.name}.pdf',
+                #     'type': 'binary',
+                #     'datas': base64.b64encode(pdf_content),
+                #     'mimetype': 'application/pdf',
+                #     'res_model': 'res.partner',
+                #     'res_id': partner.id,
+                # })
 
                 ctx = {
                     'default_model': 'res.partner',
@@ -142,7 +142,7 @@ class ActivityStatementRecord(models.Model):
                 }
 
                 template = template.with_context(ctx).with_company(partner.company_id.id)
-                template.attachment_ids = [(4, attachment.id)]
+                # template.attachment_ids = [(4, attachment.id)]
                 mail_id = template.send_mail(
                     partner.id,
                     force_send=True,
