@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ap_partner_statment_extended.access_activity_statement_record,access_activity_statement_record,ap_partner_statment_extended.model_activity_statement_record,,1,1,1,1
